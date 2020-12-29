@@ -3,9 +3,9 @@
 
 umask "${UMASK}"
 
-if [[ ! -f "${CONFIG_DIR}/.config/qBittorrent/qBittorrent.conf" ]]; then
+if [[ ! -f "${CONFIG_DIR}/app/config/qBittorrent.conf" ]]; then
     echo "Installing default \"qBittorrent.conf\"..."
-    mkdir -p "${CONFIG_DIR}/.config/qBittorrent"
-    cp /app/qBittorrent.conf "${CONFIG_DIR}/.config/qBittorrent/qBittorrent.conf"
-    chown hotio:hotio -R "${CONFIG_DIR}/.config"
+    mkdir -p "${CONFIG_DIR}/app/config"
+    cp /app/qBittorrent.conf "${CONFIG_DIR}/app/config/qBittorrent.conf"
+    chown hotio:hotio -R "${CONFIG_DIR}/app/config"
 fi

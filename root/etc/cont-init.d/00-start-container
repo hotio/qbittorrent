@@ -32,3 +32,9 @@ fi
 echo "Applying permissions to ${CONFIG_DIR}"
 chmod "=rwx" "${CONFIG_DIR}"
 chown hotio:hotio "${CONFIG_DIR}"
+
+if [[ ! -d "${CONFIG_DIR}/app" ]]; then
+    echo "Creating directory ${CONFIG_DIR}/app"
+    mkdir "${CONFIG_DIR}/app"
+    chown hotio:hotio "${CONFIG_DIR}/app"
+fi

@@ -4,6 +4,8 @@ ARG DEBIAN_FRONTEND="noninteractive"
 
 EXPOSE 8080
 
+RUN ln -s "${CONFIG_DIR}/app" "${APP_DIR}/qBittorrent"
+
 ARG FULL_VERSION
 
 RUN apt update && \
