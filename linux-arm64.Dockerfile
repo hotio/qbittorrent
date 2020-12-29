@@ -6,7 +6,7 @@ EXPOSE 8080
 
 ARG VERSION
 
-RUN ln -s "${CONFIG_DIR}/app" "${APP_DIR}/.config/qBittorrent"
+RUN mkdir "${APP_DIR}/.config" && ln -s "${CONFIG_DIR}/app" "${APP_DIR}/.config/qBittorrent"
 
 RUN apt update && \
     apt install -y --no-install-recommends --no-install-suggests \
