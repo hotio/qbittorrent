@@ -1,0 +1,11 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+umask "${UMASK}"
+
+if [[ ! -f "${CONFIG_DIR}/.config/qBittorrent/qBittorrent.conf" ]]; then
+    echo "Installing default \"qBittorrent.conf\"..."
+    mkdir -p "${CONFIG_DIR}/.config/qBittorrent"
+    cp /app/qBittorrent.conf "${CONFIG_DIR}/.config/qBittorrent/qBittorrent.conf"
+    chown hotio:hotio -R "${CONFIG_DIR}/.config"
+fi

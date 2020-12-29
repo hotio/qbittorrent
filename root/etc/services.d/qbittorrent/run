@@ -3,8 +3,6 @@
 
 umask "${UMASK}"
 
-HOME="${APP_DIR}" && export HOME
-
 redirect_cmd() {
     if [[ "${DEBUG}" == "yes" ]]; then
         "$@"
@@ -14,4 +12,4 @@ redirect_cmd() {
 }
 
 # shellcheck disable=SC2086
-redirect_cmd exec s6-setuidgid hotio /usr/bin/qbittorrent-nox --webui-port=8080 ${ARGS}
+redirect_cmd exec s6-setuidgid hotio /usr/bin/qbittorrent-nox ${ARGS}
