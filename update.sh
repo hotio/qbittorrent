@@ -18,7 +18,6 @@ elif [[ ${1} == "tests" ]]; then
     currenttime=$(date +%s); maxtime=$((currenttime+60)); while (! curl -fsSL "${app_url}" > /dev/null) && [[ "$currenttime" -lt "$maxtime" ]]; do sleep 1; currenttime=$(date +%s); done
     curl -fsSL "${app_url}" > /dev/null
     status=$?
-    [[ ${2} == *"linux-arm-v7" ]] && status=0
     echo "Show docker logs..."
     docker logs service
     exit ${status}
