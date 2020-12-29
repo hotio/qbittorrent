@@ -30,7 +30,10 @@ elif [[ ${1} == "screenshot" ]]; then
     exit 0
 else
     full_version=$(curl -fsSL "http://ppa.launchpad.net/qbittorrent-team/qbittorrent-stable/ubuntu/dists/focal/main/binary-amd64/Packages.gz" | gunzip -c | grep -A 7 -m 1 "Package: qbittorrent-nox" | awk -F ": " '/Version/{print $2;exit}')
-    version=$(echo "${full_version}" | sed -e "s/.*://g" -e "s/~ubuntu.*//g")
+    version=$(echo "${full_version}" | sed -e "s/^.*://g" -e "s/~ubuntu.*//g")
     [[ -z ${version} ]] && exit 1
-    echo '{"version":"'"${version}"'","full_version":"'"${full_version}"'"}' | jq . > VERSION.json
+    old_version=$(jq -r '.version' < VERSION.json)
+    changelog=$(jq -r '.changelog' < VERSION.json)
+    [[ "${old_version: -9}" != "${version: -9}" ]] && changelog="https://github.com/rclone/rclone/compare/${old_version: -9}...${version: -9}"
+    echo '{"version":"'"${version}"'","full_version":"'"${full_version}"'","changelog":"'"${changelog}"'"}' | jq . > VERSION.json
 fi
