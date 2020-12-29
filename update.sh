@@ -33,6 +33,6 @@ else
     [[ -z ${version} ]] && exit 1
     old_version=$(jq -r '.version' < VERSION.json)
     changelog=$(jq -r '.changelog' < VERSION.json)
-    [[ "${old_version: -9}" != "${version: -9}" ]] && changelog="https://github.com/rclone/rclone/compare/${old_version: -9}...${version: -9}"
+    [[ "${old_version: -9}" != "${version: -9}" ]] && changelog="https://github.com/qbittorrent/qbittorrent/compare/${old_version: -9}...${version: -9}"
     echo '{"version":"'"${version}"'","full_version":"'"${full_version}"'","changelog":"'"${changelog}"'"}' | jq . > VERSION.json
 fi
