@@ -1,0 +1,17 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+umask "${UMASK}"
+
+HOME="${APP_DIR}" && export HOME
+
+redirect_cmd() {
+    if [[ "${DEBUG}" == "yes" ]]; then
+        "$@"
+    else
+        "$@" > /dev/null 2>&1
+    fi
+}
+
+# shellcheck disable=SC2086
+redirect_cmd exec s6-setuidgid hotio /usr/bin/qbittorrent-nox --webui-port=8080 ${ARGS}

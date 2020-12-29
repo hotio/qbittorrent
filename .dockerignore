@@ -1,0 +1,6 @@
+.git
+.github
+.gitattributes
+VERSION.json
+puppeteer.js
+update.sh

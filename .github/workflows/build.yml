@@ -1,0 +1,262 @@
+name: build
+
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+
+jobs:
+
+  check:
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Shellcheck
+        run: |
+          shellcheck --version
+          if [[ -d ./root ]]; then
+            find "./root" -type f -print -exec shellcheck {} \;
+          else
+            true
+          fi
+
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        architecture: [linux-arm-v7, linux-arm64, linux-amd64]
+    needs: [check]
+    outputs:
+      version: ${{ steps.prep.outputs.version }}
+      branch: ${{ steps.prep.outputs.branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Check if architecture exists
+        id: arch_check
+        run: |
+          (test -f ${{ matrix.architecture }}.Dockerfile && echo ::set-output name=check::passed) || echo ::set-output name=check::failed
+
+      - name: Set up QEMU
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+          version: latest
+          driver-opts: image=moby/buildkit:master
+
+      - name: Login to DockerHub
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PERSONAL_TOKEN }}
+
+      - name: Prepare
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        id: prep
+        run: |
+          ARCHITECTURE=${{ matrix.architecture }}
+          echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          echo ::set-output name=title::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}
+          echo ::set-output name=revision::${GITHUB_SHA}
+          echo ::set-output name=source::${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${GITHUB_REF//refs\/heads\//}
+          echo ::set-output name=vendor::${{ github.repository_owner }}
+          echo ::set-output name=url::${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/master/README.md
+          echo ::set-output name=platform::${ARCHITECTURE//-/\/}
+          echo ::set-output name=cache::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-cache-${{ matrix.architecture }}
+          echo ::set-output name=tag::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}-${{ matrix.architecture }}
+          VERSION=$(jq -r '.version' < VERSION.json)
+          if [[ ${VERSION} == null ]] || [[ -z ${VERSION} ]]; then
+            VERSION=$(date +"%Y%m%d%H%M%S")
+          fi
+          BRANCH=$(jq -r '.branch' < VERSION.json)
+          if [[ ${BRANCH} == null ]] || [[ -z ${BRANCH} ]]; then
+            echo ::set-output name=branch::null
+            echo ::set-output name=version::${VERSION}
+          else
+            echo ::set-output name=branch::${BRANCH}
+            echo ::set-output name=version::${BRANCH}-${VERSION}
+          fi
+          ARGS="$(jq -r 'to_entries[] | [(.key | ascii_upcase),.value] | join("=")' < VERSION.json)"
+          ARGS="${ARGS//'%'/'%25'}"
+          ARGS="${ARGS//$'\n'/'%0A'}"
+          ARGS="${ARGS//$'\r'/'%0D'}"
+          echo "::set-output name=build-args::${ARGS}"
+          echo "::set-output name=package-version::${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}"
+
+      - name: Build and push
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          platforms: ${{ steps.prep.outputs.platform }}
+          file: ./${{ matrix.architecture }}.Dockerfile
+          cache-from: ghcr.io/${{ steps.prep.outputs.cache }}
+          cache-to: ghcr.io/${{ steps.prep.outputs.cache }}
+          tags: |
+            ${{ steps.prep.outputs.tag }}
+            ghcr.io/${{ steps.prep.outputs.tag }}
+          labels: |
+            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+            org.opencontainers.image.title=${{ steps.prep.outputs.title }}
+            org.opencontainers.image.revision=${{ steps.prep.outputs.revision }}
+            org.opencontainers.image.source=${{ steps.prep.outputs.source }}
+            org.opencontainers.image.vendor=${{ steps.prep.outputs.vendor }}
+            org.opencontainers.image.url=${{ steps.prep.outputs.url }}
+            org.opencontainers.image.version=${{ steps.prep.outputs.version }}
+          build-args: |
+            BUILD_ARCHITECTURE=${{ matrix.architecture }}
+            PACKAGE_VERSION=${{ steps.prep.outputs.package-version }}
+            ${{ steps.prep.outputs.build-args }}
+
+      - name: Dive Analysis
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        uses: yuichielectric/dive-action@0.0.4
+        with:
+          image: "ghcr.io/${{ steps.prep.outputs.tag }}"
+
+      - name: Run tests
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        run: |
+          bash update.sh tests ghcr.io/${{ steps.prep.outputs.tag }}
+
+  publish:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        registry: [docker.io, ghcr.io]
+    needs: [build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        if: matrix.registry == 'docker.io'
+        uses: docker/login-action@v1
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: matrix.registry == 'ghcr.io'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.PERSONAL_TOKEN }}
+
+      - name: Create manifests
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+        run: |
+          IMAGE=${{ matrix.registry }}/${GITHUB_REPOSITORY}
+          TAG=${GITHUB_REF//refs\/heads\//}
+          SOURCE=${IMAGE}:${TAG}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}
+          VERSION=${{ needs.build.outputs.version }}
+          BRANCH=${{ needs.build.outputs.branch }}
+          [[ -f linux-amd64.Dockerfile ]]  && AMD64=${SOURCE}-linux-amd64
+          [[ -f linux-arm64.Dockerfile ]]  && ARM64=${SOURCE}-linux-arm64
+          [[ -f linux-arm-v7.Dockerfile ]] && ARMV7=${SOURCE}-linux-arm-v7
+          docker manifest create ${IMAGE}:${TAG} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push ${IMAGE}:${TAG}
+          docker manifest create ${IMAGE}:${TAG}-${GITHUB_SHA:0:7} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push ${IMAGE}:${TAG}-${GITHUB_SHA:0:7}
+          docker manifest create ${IMAGE}:${TAG}-${VERSION//\~/-} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push ${IMAGE}:${TAG}-${VERSION//\~/-}
+          if [[ ${BRANCH} != null ]]; then
+            docker manifest create ${IMAGE}:${TAG}-${BRANCH} ${AMD64} ${ARM64} ${ARMV7}
+            docker manifest push ${IMAGE}:${TAG}-${BRANCH}
+          fi
+          if [[ ${GITHUB_REF//refs\/heads\//} == release ]]; then
+            docker manifest create ${IMAGE}:latest ${AMD64} ${ARM64} ${ARMV7}
+            docker manifest push ${IMAGE}:latest
+          fi
+
+  notify:
+    runs-on: ubuntu-20.04
+    if: ${{ always() }}
+    needs: [build, publish]
+    steps:
+      - name: Checkout
+        if: "contains(needs.publish.result, 'success')"
+        uses: actions/checkout@v2
+
+      - name: Take screenshot
+        if: "contains(needs.publish.result, 'success')"
+        run: |
+          if [[ -f puppeteer.js ]]; then
+            bash update.sh screenshot ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}
+          fi
+
+      - name: Send discord notification
+        if: "!contains(github.event.head_commit.message, 'skip ci')"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.build.outputs.version }}
+          STATUS: ${{ needs.publish.result }}
+        shell: bash
+        run: |
+          COMMIT_MESSAGE="$(curl -u "${GITHUB_OWNER}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}" | jq -r .commit.message | head -1)"
+          [[ "${STATUS}" == "success" ]] && COLOR="3066993"
+          CHANGELOG=$(jq -r '.changelog' < VERSION.json)
+          if [[ ${CHANGELOG} != null ]]; then
+            VERSION="[${VERSION:----}](${CHANGELOG})"
+          fi
+          if [[ ! -f "screenshot.png" ]]; then
+              curl -fsSL "https://robohash.org/${RANDOM}.png?set=set3&size=700x700" > robo.png
+              sudo apt install -y --no-install-recommends --no-install-suggests imagemagick
+              convert robo.png -resize 1920x1080 -background none -gravity center -extent 1920x1080 screenshot.png
+          fi
+          json='{
+            "embeds": [
+              {
+                "title": "'${GITHUB_REPOSITORY}':'${GITHUB_REF//refs\/heads\//}'",
+                "url": "https://github.com/'${GITHUB_REPOSITORY}'/actions/runs/'${GITHUB_RUN_ID}'",
+                "color": '${COLOR:-15158332}',
+                "fields": [
+                  {
+                    "name": "Commit Message",
+                    "value": "```'${COMMIT_MESSAGE//\"/\\\"}'```"
+                  },
+                  {
+                    "name": "Commit",
+                    "value": "['${GITHUB_SHA:0:7}'](https://github.com/'${GITHUB_REPOSITORY}'/commit/'${GITHUB_SHA}')",
+                    "inline": true
+                  },
+                  {
+                    "name": "Version",
+                    "value": "'${VERSION:----}'",
+                    "inline": true
+                  }
+                ],
+                "footer": {
+                  "text": "Powered by GitHub Actions"
+                },
+                "timestamp": "'$(date -u +'%FT%T.%3NZ')'",
+                "image": {
+                  "url": "attachment://screenshot.png"
+                }
+              }
+            ]
+          }'
+          curl -fsSL -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}"

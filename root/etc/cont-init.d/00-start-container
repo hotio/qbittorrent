@@ -1,0 +1,40 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+umask "${UMASK}"
+
+echo "
+----------------------------------------------------------------------
+ENVIRONMENT
+----------------------------------------------------------------------
+PUID=${PUID}
+PGID=${PGID}
+UMASK=${UMASK}
+TZ=${TZ}
+ARGS=${ARGS}
+DEBUG=${DEBUG}
+----------------------------------------------------------------------
+"
+
+if [[ ! "${PUID}" -eq 0 ]] && [[ ! "${PGID}" -eq 0 ]]; then
+    echo "Executing usermod..."
+    mkdir "/tmp/temphome"
+    usermod -d "/tmp/temphome" hotio
+    usermod -o -u "${PUID}" hotio
+    usermod -d "${CONFIG_DIR}" hotio
+    rm -rf "/tmp/temphome"
+    groupmod -o -g "${PGID}" hotio
+else
+    echo "Running as root is not supported, please fix your PUID and PGID!"
+    exit 1
+fi
+
+echo "Applying permissions to ${CONFIG_DIR}"
+chmod "=rwx" "${CONFIG_DIR}"
+chown hotio:hotio "${CONFIG_DIR}"
+
+if [[ ! -d "${CONFIG_DIR}/app" ]]; then
+    echo "Creating directory ${CONFIG_DIR}/app"
+    mkdir "${CONFIG_DIR}/app"
+    chown hotio:hotio "${CONFIG_DIR}/app"
+fi
