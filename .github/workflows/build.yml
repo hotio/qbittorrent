@@ -196,7 +196,6 @@ jobs:
     needs: [build, publish]
     steps:
       - name: Checkout
-        if: "contains(needs.publish.result, 'success')"
         uses: actions/checkout@v2
 
       - name: Take screenshot
