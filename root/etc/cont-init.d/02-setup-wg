@@ -95,7 +95,8 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	iptables -P FORWARD DROP
 
 	iptables -P INPUT DROP
-	iptables -A INPUT -i "wg0" -j ACCEPT
+	iptables -A INPUT -i "wg0" -p udp ! --dport "${webui_port}" -j ACCEPT
+	iptables -A INPUT -i "wg0" -p tcp ! --dport "${webui_port}" -j ACCEPT
 	iptables -A INPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
 	iptables -A INPUT -i "${nw_interface}" -p udp --sport "${vpn_port}" -j ACCEPT
 	iptables -A INPUT -i "${nw_interface}" -p tcp --dport "${webui_port}" -j ACCEPT
@@ -116,7 +117,8 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	ip6tables -P FORWARD DROP 1>&- 2>&-
 
 	ip6tables -P INPUT DROP 1>&- 2>&-
-	ip6tables -A INPUT -i "wg0" -j ACCEPT
+	ip6tables -A INPUT -i "wg0" -p udp ! --dport "${webui_port}" -j ACCEPT
+	ip6tables -A INPUT -i "wg0" -p tcp ! --dport "${webui_port}" -j ACCEPT
 
 	ip6tables -P OUTPUT DROP 1>&- 2>&-
 	ip6tables -A OUTPUT -o "wg0" -j ACCEPT
