@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+umask "${UMASK}"
+
+if [[ ${VPN_ENABLED} == "true" ]]; then
+
+	if wg-quick down "${CONFIG_DIR}/wireguard/wg0.conf" > /dev/null 2>&1; then
+		echo "[INFO] Stopped WireGuard."
+	fi
+
+fi
