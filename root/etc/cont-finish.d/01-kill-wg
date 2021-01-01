@@ -5,7 +5,7 @@ umask "${UMASK}"
 
 if [[ ${VPN_ENABLED} == "true" ]]; then
 
-	if wg-quick down "${CONFIG_DIR}/wireguard/wg0.conf" > /dev/null 2>&1; then
+	if wg-quick down "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf" > /dev/null 2>&1; then
 		echo "[INFO] Stopped WireGuard."
 	fi
 

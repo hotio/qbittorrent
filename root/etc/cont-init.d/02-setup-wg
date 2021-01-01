@@ -20,18 +20,18 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		sed -i "s:sysctl -q net.ipv4.conf.all.src_valid_mark=1:echo skipping setting net.ipv4.conf.all.src_valid_mark:" /usr/bin/wg-quick
 	fi
 
-	if [[ ! -f "${CONFIG_DIR}/wireguard/wg0.conf" ]]; then
+	if [[ ! -f "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf" ]]; then
 		mkdir -p "${CONFIG_DIR}/wireguard"
 		chown hotio:hotio "${CONFIG_DIR}/wireguard"
-		echo "[ERROR] Configuration file \"${CONFIG_DIR}/wireguard/wg0.conf\" was not found. Exiting..."
+		echo "[ERROR] Configuration file \"${CONFIG_DIR}/wireguard/${VPN_CONF}.conf\" was not found. Exiting..."
 		exit 1
 	else
-		echo "[INFO] Configuration file \"${CONFIG_DIR}/wireguard/wg0.conf\" was found."
-		chown hotio:hotio "${CONFIG_DIR}/wireguard/wg0.conf"
-		chmod 600 "${CONFIG_DIR}/wireguard/wg0.conf"
+		echo "[INFO] Configuration file \"${CONFIG_DIR}/wireguard/${VPN_CONF}.conf\" was found."
+		chown hotio:hotio "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"
+		chmod 600 "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"
 	fi
 
-	if wg-quick down "${CONFIG_DIR}/wireguard/wg0.conf" > /dev/null 2>&1; then
+	if wg-quick down "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf" > /dev/null 2>&1; then
 		echo "[INFO] WireGuard is still running. Stopping WireGuard..."
 		sleep 1
 	else
@@ -45,7 +45,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 			"$@" > /dev/null 2>&1
 		fi
 	}
-	if redirect_cmd wg-quick up "${CONFIG_DIR}/wireguard/wg0.conf"; then
+	if redirect_cmd wg-quick up "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"; then
 		echo "[INFO] WireGuard is started."
 	else
 		echo "[ERROR] WireGuard failed to start."
@@ -53,10 +53,10 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	fi
 
 	while true; do
-		if ip a show wg0 up > /dev/null 2>&1; then
+		if ip a show "${VPN_CONF}" up > /dev/null 2>&1; then
 			break
 		else
-			echo "[INFO] Waiting for \"wg0\" interface to come online."
+			echo "[INFO] Waiting for \"${VPN_CONF}\" interface to come online."
 			sleep 1
 		fi
 	done
@@ -64,7 +64,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	webui_port=$(grep "WebUI.Port=.*" < "${CONFIG_DIR}/app/config/qBittorrent.conf" | sed "s/WebUI.Port=//")
 	echo "[INFO] WebUI port is \"${webui_port}\"."
 
-	vpn_remote=$(grep -P -o -m 1 '(?<=^Endpoint)(\s{0,})[^\n\r]+' < "${CONFIG_DIR}/wireguard/wg0.conf"| sed -e 's~^[=\ ]*~~')
+	vpn_remote=$(grep -P -o -m 1 '(?<=^Endpoint)(\s{0,})[^\n\r]+' < "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"| sed -e 's~^[=\ ]*~~')
 	vpn_port=$(echo "${vpn_remote}" | grep -P -o -m 1 '(?<=:)\d{2,5}(?=:)?+')
 	echo "[INFO] WireGuard remote is \"${vpn_remote}\"."
 
@@ -95,8 +95,8 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	iptables -P FORWARD DROP
 
 	iptables -P INPUT DROP
-	iptables -A INPUT -i "wg0" -p udp ! --dport "${webui_port}" -j ACCEPT
-	iptables -A INPUT -i "wg0" -p tcp ! --dport "${webui_port}" -j ACCEPT
+	iptables -A INPUT -i "${VPN_CONF}" -p udp ! --dport "${webui_port}" -j ACCEPT
+	iptables -A INPUT -i "${VPN_CONF}" -p tcp ! --dport "${webui_port}" -j ACCEPT
 	iptables -A INPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
 	iptables -A INPUT -i "${nw_interface}" -p udp --sport "${vpn_port}" -j ACCEPT
 	iptables -A INPUT -i "${nw_interface}" -p tcp --dport "${webui_port}" -j ACCEPT
@@ -105,7 +105,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	iptables -A INPUT -i lo -j ACCEPT
 
 	iptables -P OUTPUT DROP
-	iptables -A OUTPUT -o "wg0" -j ACCEPT
+	iptables -A OUTPUT -o "${VPN_CONF}" -j ACCEPT
 	iptables -A OUTPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
 	iptables -A OUTPUT -o "${nw_interface}" -p udp --dport "${vpn_port}" -j ACCEPT
 	#iptables -A OUTPUT -o "${nw_interface}" -p tcp --dport "${webui_port}" -j ACCEPT
@@ -117,11 +117,11 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	ip6tables -P FORWARD DROP 1>&- 2>&-
 
 	ip6tables -P INPUT DROP 1>&- 2>&-
-	ip6tables -A INPUT -i "wg0" -p udp ! --dport "${webui_port}" -j ACCEPT
-	ip6tables -A INPUT -i "wg0" -p tcp ! --dport "${webui_port}" -j ACCEPT
+	ip6tables -A INPUT -i "${VPN_CONF}" -p udp ! --dport "${webui_port}" -j ACCEPT
+	ip6tables -A INPUT -i "${VPN_CONF}" -p tcp ! --dport "${webui_port}" -j ACCEPT
 
 	ip6tables -P OUTPUT DROP 1>&- 2>&-
-	ip6tables -A OUTPUT -o "wg0" -j ACCEPT
+	ip6tables -A OUTPUT -o "${VPN_CONF}" -j ACCEPT
 
 	if [[ ${DEBUG} == "yes" ]]; then
 		echo "[DEBUG] iptables overview:"

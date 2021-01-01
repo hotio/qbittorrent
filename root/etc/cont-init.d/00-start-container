@@ -15,6 +15,7 @@ ARGS=${ARGS}
 DEBUG=${DEBUG}
 VPN_ENABLED=${VPN_ENABLED}
 VPN_LAN_NETWORK=${VPN_LAN_NETWORK}
+VPN_CONF=${VPN_CONF}
 ----------------------------------------------------------------------
 "
 
