@@ -113,26 +113,39 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT
 	iptables -A OUTPUT -o lo -j ACCEPT
 
-	echo "[INFO] Configuring ip6tables..."
-	ip6tables -P FORWARD DROP 1>&- 2>&-
+	for file in /proc/sys/net/ipv6/conf/*; do
+		[[ "$(cat "/proc/sys/net/ipv6/conf/${file##*/}/disable_ipv6")" == "0" ]] && ipv6_wanted="true"
+	done
 
-	ip6tables -P INPUT DROP 1>&- 2>&-
-	ip6tables -A INPUT -i "${VPN_CONF}" -p udp ! --dport "${webui_port}" -j ACCEPT
-	ip6tables -A INPUT -i "${VPN_CONF}" -p tcp ! --dport "${webui_port}" -j ACCEPT
+	[[ ${ipv6_wanted} == "true" ]] || echo "[INFO] ipv6 is disabled, we will not set ip6tables rules."
 
-	ip6tables -P OUTPUT DROP 1>&- 2>&-
-	ip6tables -A OUTPUT -o "${VPN_CONF}" -j ACCEPT
+	if [[ ${ipv6_wanted} == "true" ]]; then
+		echo "[INFO] Configuring ip6tables..."
+		ip6tables -P FORWARD DROP 1>&- 2>&-
+
+		ip6tables -P INPUT DROP 1>&- 2>&-
+		ip6tables -A INPUT -i "${VPN_CONF}" -p udp ! --dport "${webui_port}" -j ACCEPT
+		ip6tables -A INPUT -i "${VPN_CONF}" -p tcp ! --dport "${webui_port}" -j ACCEPT
+
+		ip6tables -P OUTPUT DROP 1>&- 2>&-
+		ip6tables -A OUTPUT -o "${VPN_CONF}" -j ACCEPT
+	fi
 
 	if [[ ${DEBUG} == "yes" ]]; then
 		echo "[DEBUG] iptables overview:"
 		iptables -S
-		echo "[DEBUG] ip6tables overview:"
-		ip6tables -S
+		if [[ ${ipv6_wanted} == "true" ]]; then
+			echo "[DEBUG] ip6tables overview:"
+			ip6tables -S
+		fi
 	fi
 
 	set +e
 
 	echo "[INFO] Your ipv4 is \"$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)\"."
-	echo "[INFO] Your ipv6 is \"$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)\"."
+
+	if [[ ${ipv6_wanted} == "true" ]]; then
+		echo "[INFO] Your ipv6 is \"$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)\"."
+	fi
 
 fi
