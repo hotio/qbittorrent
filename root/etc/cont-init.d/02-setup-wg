@@ -116,12 +116,17 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT
 	iptables -A OUTPUT -o lo -j ACCEPT
 
+	unset ipv6_wanted
 	for file in /proc/sys/net/ipv6/conf/*; do
 		[[ "$(cat "/proc/sys/net/ipv6/conf/${file##*/}/disable_ipv6")" == "0" ]] && ipv6_wanted="true"
 	done
-	[[ -n "${old_ipv6}" ]] && ipv6_wanted="true"
 
-	[[ ${ipv6_wanted} == "true" ]] || echo "[INFO] ipv6 is disabled, we will not set ip6tables rules."
+	if [[ -z "${ipv6_wanted}" ]] && [[ -n "${old_ipv6}" ]]; then
+		echo "[ERROR] ipv6 is disabled, but we got data back in our ipv6 lookup. Exiting..."
+		exit 1
+	fi
+
+	[[ -z "${ipv6_wanted}" ]] && echo "[INFO] ipv6 is disabled, we will not set ip6tables rules."
 
 	if [[ ${ipv6_wanted} == "true" ]]; then
 		echo "[INFO] Configuring ip6tables..."
