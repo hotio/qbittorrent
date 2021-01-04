@@ -143,9 +143,6 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	set +e
 
 	echo "[INFO] Your ipv4 is \"$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)\"."
-
-	if [[ ${ipv6_wanted} == "true" ]]; then
-		echo "[INFO] Your ipv6 is \"$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)\"."
-	fi
+	echo "[INFO] Your ipv6 is \"$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)\"."
 
 fi
