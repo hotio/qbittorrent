@@ -31,6 +31,9 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		chmod 600 "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"
 	fi
 
+	old_ipv4=$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)
+	old_ipv6=$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)
+
 	if wg-quick down "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf" > /dev/null 2>&1; then
 		echo "[INFO] WireGuard is still running. Stopping WireGuard..."
 		sleep 1
@@ -142,7 +145,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 
 	set +e
 
-	echo "[INFO] Your ipv4 is \"$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)\"."
-	echo "[INFO] Your ipv6 is \"$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)\"."
+	echo "[INFO] Your old ipv4 is \"${old_ipv4}\", your new ipv4 is \"$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)\"."
+	echo "[INFO] Your old ipv6 is \"${old_ipv6}\", your new ipv6 is \"$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)\"."
 
 fi
