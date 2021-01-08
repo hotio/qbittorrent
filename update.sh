@@ -28,7 +28,7 @@ elif [[ ${1} == "screenshot" ]]; then
     docker run --rm --network host --entrypoint="" -u "$(id -u "$USER")" -v "${GITHUB_WORKSPACE}":/usr/src/app/src zenika/alpine-chrome:with-puppeteer node src/puppeteer.js
     exit 0
 else
-    full_version=$(curl -fsSL "http://ppa.launchpad.net/qbittorrent-team/qbittorrent-stable/ubuntu/dists/focal/main/binary-amd64/Packages.gz" | gunzip -c | grep -A 7 -m 1 "Package: qbittorrent-nox" | awk -F ": " '/Version/{print $2;exit}')
+    full_version=$(curl -fsSL "http://ppa.launchpad.net/qbittorrent-team/qbittorrent-stable/ubuntu/dists/focal/main/binary-arm64/Packages.gz" | gunzip -c | grep -A 7 -m 1 "Package: qbittorrent-nox" | awk -F ": " '/Version/{print $2;exit}')
     version=$(echo "${full_version}" | sed -e "s/^.*://g" -e "s/~ubuntu.*//g")
     [[ -z ${version} ]] && exit 1
     old_version=$(jq -r '.version' < VERSION.json)
