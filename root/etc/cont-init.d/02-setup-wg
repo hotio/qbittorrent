@@ -109,7 +109,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	iptables -A INPUT -i lo -j ACCEPT
 	IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 	for additional_port in "${additional_ports[@]}"; do
-		iptables -A INPUT -i "${nw_interface}" -p tcp --dport "${additional_port}" -j ACCEPT
+		iptables -A INPUT -i "${nw_interface}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j ACCEPT
 	done
 
 	iptables -P OUTPUT DROP
@@ -121,7 +121,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	iptables -A OUTPUT -o lo -j ACCEPT
 	IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 	for additional_port in "${additional_ports[@]}"; do
-		iptables -A OUTPUT -o "${nw_interface}" -p tcp --sport "${additional_port}" -j ACCEPT
+		iptables -A OUTPUT -o "${nw_interface}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j ACCEPT
 	done
 
 	unset ipv6_wanted
