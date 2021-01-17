@@ -110,10 +110,12 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 	for additional_port in "${additional_ports[@]}"; do
 		iptables -A INPUT -i "${nw_interface}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j ACCEPT
+		iptables -I INPUT -i "${VPN_CONF}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j DROP
 	done
 
 	iptables -P OUTPUT DROP
-	iptables -A OUTPUT -o "${VPN_CONF}" -j ACCEPT
+	iptables -A OUTPUT -o "${VPN_CONF}" -p udp ! --sport "${webui_port}" -j ACCEPT
+	iptables -A OUTPUT -o "${VPN_CONF}" -p tcp ! --sport "${webui_port}" -j ACCEPT
 	iptables -A OUTPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
 	iptables -A OUTPUT -o "${nw_interface}" -p udp --dport "${vpn_port}" -j ACCEPT
 	iptables -A OUTPUT -o "${nw_interface}" -p tcp --sport "${webui_port}" -j ACCEPT
@@ -122,6 +124,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 	for additional_port in "${additional_ports[@]}"; do
 		iptables -A OUTPUT -o "${nw_interface}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j ACCEPT
+		iptables -I OUTPUT -o "${VPN_CONF}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j DROP
 	done
 
 	unset ipv6_wanted
@@ -143,9 +146,18 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		ip6tables -P INPUT DROP 1>&- 2>&-
 		ip6tables -A INPUT -i "${VPN_CONF}" -p udp ! --dport "${webui_port}" -j ACCEPT
 		ip6tables -A INPUT -i "${VPN_CONF}" -p tcp ! --dport "${webui_port}" -j ACCEPT
+		IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
+		for additional_port in "${additional_ports[@]}"; do
+			ip6tables -I INPUT -i "${VPN_CONF}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j DROP
+		done
 
 		ip6tables -P OUTPUT DROP 1>&- 2>&-
-		ip6tables -A OUTPUT -o "${VPN_CONF}" -j ACCEPT
+		ip6tables -A OUTPUT -o "${VPN_CONF}" -p udp ! --sport "${webui_port}" -j ACCEPT
+		ip6tables -A OUTPUT -o "${VPN_CONF}" -p tcp ! --sport "${webui_port}" -j ACCEPT
+		IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
+		for additional_port in "${additional_ports[@]}"; do
+			ip6tables -I OUTPUT -o "${VPN_CONF}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j DROP
+		done
 	fi
 
 	if [[ ${DEBUG} == "yes" ]]; then
