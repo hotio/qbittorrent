@@ -16,6 +16,7 @@ DEBUG=${DEBUG}
 VPN_ENABLED=${VPN_ENABLED}
 VPN_LAN_NETWORK=${VPN_LAN_NETWORK}
 VPN_CONF=${VPN_CONF}
+VPN_ADDITIONAL_PORTS=${VPN_ADDITIONAL_PORTS}
 ----------------------------------------------------------------------
 "
 
