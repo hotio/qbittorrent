@@ -3,13 +3,5 @@
 
 umask "${UMASK}"
 
-redirect_cmd() {
-    if [[ "${DEBUG}" == "yes" ]]; then
-        "$@"
-    else
-        "$@" > /dev/null 2>&1
-    fi
-}
-
 # shellcheck disable=SC2086
-redirect_cmd exec s6-setuidgid hotio /usr/bin/qbittorrent-nox --profile="${APP_DIR}" ${ARGS}
+exec s6-setuidgid hotio /usr/bin/qbittorrent-nox --profile="${APP_DIR}" ${ARGS}
