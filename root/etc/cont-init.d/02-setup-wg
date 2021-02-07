@@ -41,14 +41,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		echo "[INFO] WireGuard is down. Continuing..."
 	fi
 	echo "[INFO] Starting WireGuard..."
-	redirect_cmd() {
-		if [[ "${DEBUG}" == "yes" ]]; then
-			"$@"
-		else
-			"$@" > /dev/null 2>&1
-		fi
-	}
-	if redirect_cmd wg-quick up "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"; then
+	if wg-quick up "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"; then
 		echo "[INFO] WireGuard is started."
 	else
 		echo "[ERROR] WireGuard failed to start."
@@ -91,10 +84,8 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		ip route add "${lan_network}" via "${gateway}" dev "${nw_interface}"
 	done
 
-	if [[ ${DEBUG} == "yes" ]]; then
-		echo "[DEBUG] ip route overview:"
-		ip route
-	fi
+	echo "[INFO] ip route overview:"
+	ip route
 
 	echo "[INFO] Configuring iptables..."
 	iptables -P FORWARD DROP
@@ -160,13 +151,11 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		done
 	fi
 
-	if [[ ${DEBUG} == "yes" ]]; then
-		echo "[DEBUG] iptables overview:"
-		iptables -S
-		if [[ ${ipv6_wanted} == "true" ]]; then
-			echo "[DEBUG] ip6tables overview:"
-			ip6tables -S
-		fi
+	echo "[INFO] iptables overview:"
+	iptables -S
+	if [[ ${ipv6_wanted} == "true" ]]; then
+		echo "[INFO] ip6tables overview:"
+		ip6tables -S
 	fi
 
 	set +e
