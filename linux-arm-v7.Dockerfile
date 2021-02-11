@@ -6,7 +6,7 @@ ENV VPN_ENABLED="false" VPN_LAN_NETWORK="" VPN_CONF="wg0" VPN_ADDITIONAL_PORTS="
 
 EXPOSE 8080
 
-RUN ln -s "${CONFIG_DIR}/app" "${APP_DIR}/qBittorrent"
+RUN ln -s "${CONFIG_DIR}" "${APP_DIR}/qBittorrent"
 
 ARG FULL_VERSION
 

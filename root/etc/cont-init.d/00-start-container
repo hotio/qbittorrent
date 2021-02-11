@@ -36,8 +36,11 @@ echo "Applying permissions to ${CONFIG_DIR}"
 chmod "=rwx" "${CONFIG_DIR}"
 chown hotio:hotio "${CONFIG_DIR}"
 
-if [[ ! -d "${CONFIG_DIR}/app" ]]; then
-    echo "Creating directory ${CONFIG_DIR}/app"
-    mkdir "${CONFIG_DIR}/app"
-    chown hotio:hotio "${CONFIG_DIR}/app"
+if [[ -d "${CONFIG_DIR}/app" ]]; then
+    if [[ -n "$(ls -A "${CONFIG_DIR}/app")" ]]; then
+        echo "Migrating files from \"${CONFIG_DIR}/app\" to \"${CONFIG_DIR}\"..."
+        shopt -s dotglob
+        mv -f "${CONFIG_DIR}/app/"* "${CONFIG_DIR}" > /dev/null 2>&1 && rmdir "${CONFIG_DIR}/app"
+        shopt -u dotglob
+    fi
 fi
