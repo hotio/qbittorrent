@@ -251,7 +251,7 @@ jobs:
                   },
                   {
                     "name": "Digests",
-                    "value": "```'${DIGESTS}'```"
+                    "value": "```'"$(echo "$DIGESTS" | tr '\n' '#' | sed 's/#/\\n/g')"'```"
                   }
                 ],
                 "footer": {
