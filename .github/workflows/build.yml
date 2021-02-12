@@ -215,6 +215,8 @@ jobs:
           STATUS: ${{ needs.publish.result }}
         shell: bash
         run: |
+          export DOCKER_CLI_EXPERIMENTAL=enabled
+          DIGESTS=$(docker manifest inspect ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7} | jq -r '.manifests[]  | "\(.digest | .[7:19]) \(.platform.architecture)"')
           COMMIT_MESSAGE="$(curl -u "${GITHUB_OWNER}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}" | jq -r .commit.message | head -1)"
           [[ "${STATUS}" == "success" ]] && COLOR="3066993"
           CHANGELOG=$(jq -r '.changelog' < VERSION.json)
@@ -246,6 +248,10 @@ jobs:
                     "name": "Version",
                     "value": "'${VERSION:----}'",
                     "inline": true
+                  },
+                  {
+                    "name": "Digests",
+                    "value": "```'${DIGESTS}'```"
                   }
                 ],
                 "footer": {
