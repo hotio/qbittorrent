@@ -59,8 +59,13 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 
 	set -e
 
-	webui_port=$(grep "WebUI.Port=.*" < "${CONFIG_DIR}/config/qBittorrent.conf" | sed "s/WebUI.Port=//")
-	echo "[INFO] WebUI port is \"${webui_port}\"."
+	echo "[INFO] WebUI ports are \"${WEBUI_PORTS}\"."
+	echo "[INFO] Additional ports are \"${VPN_ADDITIONAL_PORTS}\"."
+	if [[ -z ${VPN_ADDITIONAL_PORTS} ]]; then
+		VPN_ADDITIONAL_PORTS="${WEBUI_PORTS}"
+	else
+		VPN_ADDITIONAL_PORTS+=",${WEBUI_PORTS}"
+	fi
 
 	vpn_remote=$(grep -P -o -m 1 '(?<=^Endpoint)(\s{0,})[^\n\r]+' < "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"| sed -e 's~^[=\ ]*~~')
 	vpn_port=$(echo "${vpn_remote}" | grep -P -o -m 1 '(?<=:)\d{2,5}(?=:)?+')
@@ -91,11 +96,10 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	iptables -P FORWARD DROP
 
 	iptables -P INPUT DROP
-	iptables -A INPUT -i "${VPN_CONF}" -p udp ! --dport "${webui_port}" -j ACCEPT
-	iptables -A INPUT -i "${VPN_CONF}" -p tcp ! --dport "${webui_port}" -j ACCEPT
+	iptables -A INPUT -i "${VPN_CONF}" -p udp -j ACCEPT
+	iptables -A INPUT -i "${VPN_CONF}" -p tcp -j ACCEPT
 	iptables -A INPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
 	iptables -A INPUT -i "${nw_interface}" -p udp --sport "${vpn_port}" -j ACCEPT
-	iptables -A INPUT -i "${nw_interface}" -p tcp --dport "${webui_port}" -j ACCEPT
 	iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
 	iptables -A INPUT -i lo -j ACCEPT
 	IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
@@ -105,11 +109,10 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	done
 
 	iptables -P OUTPUT DROP
-	iptables -A OUTPUT -o "${VPN_CONF}" -p udp ! --sport "${webui_port}" -j ACCEPT
-	iptables -A OUTPUT -o "${VPN_CONF}" -p tcp ! --sport "${webui_port}" -j ACCEPT
+	iptables -A OUTPUT -o "${VPN_CONF}" -p udp -j ACCEPT
+	iptables -A OUTPUT -o "${VPN_CONF}" -p tcp -j ACCEPT
 	iptables -A OUTPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
 	iptables -A OUTPUT -o "${nw_interface}" -p udp --dport "${vpn_port}" -j ACCEPT
-	iptables -A OUTPUT -o "${nw_interface}" -p tcp --sport "${webui_port}" -j ACCEPT
 	iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT
 	iptables -A OUTPUT -o lo -j ACCEPT
 	IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
@@ -135,16 +138,16 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		ip6tables -P FORWARD DROP 1>&- 2>&-
 
 		ip6tables -P INPUT DROP 1>&- 2>&-
-		ip6tables -A INPUT -i "${VPN_CONF}" -p udp ! --dport "${webui_port}" -j ACCEPT
-		ip6tables -A INPUT -i "${VPN_CONF}" -p tcp ! --dport "${webui_port}" -j ACCEPT
+		ip6tables -A INPUT -i "${VPN_CONF}" -p udp -j ACCEPT
+		ip6tables -A INPUT -i "${VPN_CONF}" -p tcp -j ACCEPT
 		IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 		for additional_port in "${additional_ports[@]}"; do
 			ip6tables -I INPUT -i "${VPN_CONF}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j DROP
 		done
 
 		ip6tables -P OUTPUT DROP 1>&- 2>&-
-		ip6tables -A OUTPUT -o "${VPN_CONF}" -p udp ! --sport "${webui_port}" -j ACCEPT
-		ip6tables -A OUTPUT -o "${VPN_CONF}" -p tcp ! --sport "${webui_port}" -j ACCEPT
+		ip6tables -A OUTPUT -o "${VPN_CONF}" -p udp -j ACCEPT
+		ip6tables -A OUTPUT -o "${VPN_CONF}" -p tcp -j ACCEPT
 		IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 		for additional_port in "${additional_ports[@]}"; do
 			ip6tables -I OUTPUT -o "${VPN_CONF}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j DROP
