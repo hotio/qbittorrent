@@ -28,4 +28,10 @@ RUN apt update && \
     apt clean && \
     rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
 
+ARG VUETORRENT_VERSION
+RUN curl -fsSL "https://github.com/wdaan/vuetorrent/releases/download/${VUETORRENT_VERSION}/release.zip" > "/tmp/vuetorrent.zip" && \
+    unzip "/tmp/vuetorrent.zip" -d "${APP_DIR}" && \
+    rm "/tmp/vuetorrent.zip" && \
+    chmod -R u=rwX,go=rX "${APP_DIR}/vuetorrent"
+
 COPY root/ /
