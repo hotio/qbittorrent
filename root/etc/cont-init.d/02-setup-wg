@@ -67,6 +67,11 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		VPN_ADDITIONAL_PORTS+=",${WEBUI_PORTS}"
 	fi
 
+	if [[ "${PRIVOXY_ENABLED}" == true ]]; then
+		echo "[INFO] Additional privoxy ports are \"8118/tcp,8118/udp\"."
+		VPN_ADDITIONAL_PORTS+=",8118/tcp,8118/udp"
+	fi
+
 	vpn_remote=$(grep -P -o -m 1 '(?<=^Endpoint)(\s{0,})[^\n\r]+' < "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"| sed -e 's~^[=\ ]*~~')
 	vpn_port=$(echo "${vpn_remote}" | grep -P -o -m 1 '(?<=:)\d{2,5}(?=:)?+')
 	echo "[INFO] WireGuard remote is \"${vpn_remote}\"."

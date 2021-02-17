@@ -2,7 +2,7 @@ FROM ghcr.io/hotio/base@sha256:63541494a6b6e37e2913c1ebc0ee45a4d046965fb453bba5e
 
 ARG DEBIAN_FRONTEND="noninteractive"
 
-ENV VPN_ENABLED="false" VPN_LAN_NETWORK="" VPN_CONF="wg0" VPN_ADDITIONAL_PORTS="" WEBUI_PORTS="8080/tcp,8080/udp" S6_SERVICES_GRACETIME=180000
+ENV VPN_ENABLED="false" VPN_LAN_NETWORK="" VPN_CONF="wg0" VPN_ADDITIONAL_PORTS="" WEBUI_PORTS="8080/tcp,8080/udp" PRIVOXY_ENABLED="false" S6_SERVICES_GRACETIME=180000
 
 EXPOSE 8080
 
@@ -17,6 +17,7 @@ RUN apt update && \
     apt update && \
     apt install -y --no-install-recommends --no-install-suggests \
         qbittorrent-nox=${FULL_VERSION} \
+        privoxy \
         ipcalc \
         iptables \
         iproute2 \

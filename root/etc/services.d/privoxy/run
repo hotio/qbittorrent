@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+umask "${UMASK}"
+
+exec s6-setuidgid hotio /usr/sbin/privoxy --no-daemon "${CONFIG_DIR}/privoxy/privoxy.conf"
