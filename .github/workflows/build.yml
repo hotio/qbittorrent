@@ -202,6 +202,7 @@ jobs:
         if: "contains(needs.publish.result, 'success')"
         env:
           GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
           VERSION: ${{ needs.build.outputs.version }}
         shell: bash
         run: |
