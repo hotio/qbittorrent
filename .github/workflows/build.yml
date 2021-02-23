@@ -201,6 +201,7 @@ jobs:
       - name: Update tags.json
         if: "contains(needs.publish.result, 'success')"
         env:
+          GITHUB_OWNER: ${{ github.repository_owner }}
           VERSION: ${{ needs.build.outputs.version }}
         shell: bash
         run: |
