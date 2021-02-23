@@ -198,6 +198,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Update tags.json
+        if: "contains(needs.publish.result, 'success')"
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        shell: bash
+        run: |
+          git config --global user.email "${GITHUB_OWNER}@users.noreply.github.com"
+          git config --global user.name "${GITHUB_OWNER}"
+          git clone -b "master" "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ${GITHUB_WORKSPACE}/master
+          cd ${GITHUB_WORKSPACE}/master || exit 1
+          ls -lah
+          if [[ -f ./tags.json ]]; then
+            json=$(cat ./tags.json)
+            jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .version) |= "'"${VERSION}"'"' <<< "${json}" > ./tags.json
+            json=$(cat ./tags.json)
+            jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .lastUpdated) |= "'"$(date -u +'%FT%T.%3NZ')"'"' <<< "${json}" > ./tags.json
+            json=$(cat ./tags.json)
+            jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .commit) |= "'"${GITHUB_SHA:0:7}"'"' <<< "${json}" > ./tags.json
+            git add .
+            if git commit -m ":${GITHUB_REF//refs\/heads\//} => [${VERSION}, ${GITHUB_SHA:0:7}]"; then
+              git push
+            fi
+          fi
+
       - name: Take screenshot
         if: "contains(needs.publish.result, 'success')"
         run: |
