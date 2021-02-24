@@ -286,13 +286,13 @@ jobs:
           ls -lah
           if [[ -f ./tags.json ]]; then
             json=$(cat ./tags.json)
-            jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .version) |= "'"${VERSION}"'"' <<< "${json}" > ./tags.json
+            jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .version) |= "'"${VERSION//\~/-}"'"' <<< "${json}" > ./tags.json
             json=$(cat ./tags.json)
             jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .lastUpdated) |= "'"$(date -u +'%FT%T.%3NZ')"'"' <<< "${json}" > ./tags.json
             json=$(cat ./tags.json)
             jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .commit) |= "'"${GITHUB_SHA:0:7}"'"' <<< "${json}" > ./tags.json
             git add .
-            if git commit -m ":${GITHUB_REF//refs\/heads\//} => [${VERSION}, ${GITHUB_SHA:0:7}]"; then
+            if git commit -m ":${GITHUB_REF//refs\/heads\//} => [${VERSION//\~/-}, ${GITHUB_SHA:0:7}]"; then
               git push
             fi
           fi
