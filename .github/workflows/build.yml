@@ -265,8 +265,8 @@ jobs:
               }
             ]
           }'
-          curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}"
-          [[ -n ${EXTRA_DISCORD_WEBHOOK} ]] && curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}"
+          curl -L --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}"
+          [[ -n ${EXTRA_DISCORD_WEBHOOK} ]] && curl -L --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}"
 
   tags:
     runs-on: ubuntu-20.04
