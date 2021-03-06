@@ -218,16 +218,16 @@ jobs:
         run: |
           export DOCKER_CLI_EXPERIMENTAL=enabled
           [[ "${STATUS}" == "success" ]] && DIGESTS=$(docker manifest inspect ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7} | jq -r '.manifests[]  | "\(.digest | .[7:19]) \(.platform.os)/\(.platform.architecture)\(.platform.variant // "")"')
-          COMMIT_MESSAGE="$(curl -u "${GITHUB_OWNER}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}" | jq -r .commit.message | head -1)"
+          COMMIT_MESSAGE="$(curl -u "${GITHUB_OWNER}:${GITHUB_TOKEN}" -fsSL --retry 5 "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}" | jq -r .commit.message | head -1)"
           [[ "${STATUS}" == "success" ]] && COLOR="3066993"
           CHANGELOG=$(jq -r '.changelog' < VERSION.json)
           if [[ ${CHANGELOG} != null ]]; then
             VERSION="[${VERSION:----}](${CHANGELOG})"
           fi
           if [[ ! -f "screenshot.png" ]]; then
-              curl -fsSL "https://robohash.org/${RANDOM}.png?set=set3&size=700x700" > robo.png
+              curl -fsSL --retry 5 "https://hotio.dev/webhook-avatars/pullio.png" > pullio.png
               sudo apt install -y --no-install-recommends --no-install-suggests imagemagick
-              convert robo.png -resize 1920x1080 -background none -gravity center -extent 1920x1080 screenshot.png
+              convert pullio.png -resize 1920x1080 -background none -gravity center -extent 1920x1080 screenshot.png
           fi
           json='{
             "embeds": [
@@ -265,23 +265,8 @@ jobs:
               }
             ]
           }'
-          n=1
-          until [[ "$n" -gt 5 ]]; do
-            curl -fsSL -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null && break
-            n=$((n+1))
-            sleep 15
-          done
-          echo "Tried ${n} times."
-          if [[ -n ${EXTRA_DISCORD_WEBHOOK} ]]; then
-            n=1
-            until [[ "$n" -gt 5 ]]; do
-              curl -fsSL -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null && break
-              n=$((n+1))
-              sleep 15
-            done
-            echo "Tried ${n} times."
-          fi
-          exit 0
+          curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
+          [[ -n ${EXTRA_DISCORD_WEBHOOK} ]] && curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null
 
   tags:
     runs-on: ubuntu-20.04
