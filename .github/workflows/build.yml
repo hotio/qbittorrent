@@ -267,7 +267,7 @@ jobs:
           }'
           n=1
           until [[ "$n" -gt 5 ]]; do
-            curl -fsSL -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" && break
+            curl -fsSL -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null && break
             n=$((n+1))
             sleep 15
           done
@@ -275,7 +275,7 @@ jobs:
           if [[ -n ${EXTRA_DISCORD_WEBHOOK} ]]; then
             n=1
             until [[ "$n" -gt 5 ]]; do
-              curl -fsSL -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" && break
+              curl -fsSL -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null && break
               n=$((n+1))
               sleep 15
             done
