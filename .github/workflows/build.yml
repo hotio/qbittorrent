@@ -225,9 +225,7 @@ jobs:
             VERSION="[${VERSION:----}](${CHANGELOG})"
           fi
           if [[ ! -f "screenshot.png" ]]; then
-              curl -fsSL --retry 5 "https://hotio.dev/webhook-avatars/pullio.png" > pullio.png
-              sudo apt install -y --no-install-recommends --no-install-suggests imagemagick
-              convert pullio.png -resize 1920x1080 -background none -gravity center -extent 1920x1080 screenshot.png
+              curl -fsSL --retry 5 "https://hotio.dev/img/pullio-background.png" > screenshot.png
           fi
           json='{
             "embeds": [
