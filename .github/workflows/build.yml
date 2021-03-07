@@ -122,7 +122,7 @@ jobs:
             org.opencontainers.image.url=${{ steps.prep.outputs.url }}
             org.opencontainers.image.version=${{ steps.prep.outputs.version }}
           build-args: |
-            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN=${{ secrets.PERSONAL_TOKEN }}
             BUILD_ARCHITECTURE=${{ matrix.architecture }}
             PACKAGE_VERSION=${{ steps.prep.outputs.package-version }}
             ${{ steps.prep.outputs.build-args }}
