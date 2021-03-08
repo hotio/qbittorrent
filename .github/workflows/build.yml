@@ -82,17 +82,14 @@ jobs:
           echo ::set-output name=platform::${ARCHITECTURE//-/\/}
           echo ::set-output name=cache::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-cache-${{ matrix.architecture }}
           echo ::set-output name=tag::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}-${{ matrix.architecture }}
-          VERSION=$(jq -r '.version' < VERSION.json)
-          if [[ ${VERSION} == null ]] || [[ -z ${VERSION} ]]; then
+          VERSION=$(jq -r '.version // empty' < VERSION.json)
+          if [[ -z ${VERSION} ]]; then
             VERSION=$(date +"%Y%m%d%H%M%S")
           fi
-          BRANCH=$(jq -r '.branch' < VERSION.json)
-          if [[ ${BRANCH} == null ]] || [[ -z ${BRANCH} ]]; then
-            echo ::set-output name=branch::null
-            echo ::set-output name=version::${VERSION}
-          else
-            echo ::set-output name=branch::${BRANCH}
-            echo ::set-output name=version::${BRANCH}-${VERSION}
+          echo ::set-output name=version::${VERSION}
+          BRANCH=$(jq -r '.branch // empty' < VERSION.json)
+          if [[ -n ${BRANCH} ]]; then
+            echo ::set-output name=branch::-${BRANCH}
           fi
           ARGS="$(jq -r 'to_entries[] | [(.key | ascii_upcase),.value] | join("=")' < VERSION.json)"
           ARGS="${ARGS//'%'/'%25'}"
@@ -176,19 +173,15 @@ jobs:
           [[ -f linux-amd64.Dockerfile ]]  && AMD64=${SOURCE}-linux-amd64
           [[ -f linux-arm64.Dockerfile ]]  && ARM64=${SOURCE}-linux-arm64
           [[ -f linux-arm-v7.Dockerfile ]] && ARMV7=${SOURCE}-linux-arm-v7
-          docker manifest create ${IMAGE}:${TAG} ${AMD64} ${ARM64} ${ARMV7}
-          docker manifest push ${IMAGE}:${TAG}
+          docker manifest create ${IMAGE}:${TAG}${BRANCH} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push   ${IMAGE}:${TAG}${BRANCH}
+          docker manifest create ${IMAGE}:${TAG}${BRANCH}-${VERSION//\~/-} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push   ${IMAGE}:${TAG}${BRANCH}-${VERSION//\~/-}
           docker manifest create ${IMAGE}:${TAG}-${GITHUB_SHA:0:7} ${AMD64} ${ARM64} ${ARMV7}
-          docker manifest push ${IMAGE}:${TAG}-${GITHUB_SHA:0:7}
-          docker manifest create ${IMAGE}:${TAG}-${VERSION//\~/-} ${AMD64} ${ARM64} ${ARMV7}
-          docker manifest push ${IMAGE}:${TAG}-${VERSION//\~/-}
-          if [[ ${BRANCH} != null ]]; then
-            docker manifest create ${IMAGE}:${TAG}-${BRANCH} ${AMD64} ${ARM64} ${ARMV7}
-            docker manifest push ${IMAGE}:${TAG}-${BRANCH}
-          fi
-          if [[ ${GITHUB_REF//refs\/heads\//} == release ]]; then
+          docker manifest push   ${IMAGE}:${TAG}-${GITHUB_SHA:0:7}
+          if [[ ${TAG} == release ]]; then
             docker manifest create ${IMAGE}:latest ${AMD64} ${ARM64} ${ARMV7}
-            docker manifest push ${IMAGE}:latest
+            docker manifest push   ${IMAGE}:latest
           fi
 
   notify:
@@ -221,6 +214,7 @@ jobs:
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
           VERSION: ${{ needs.build.outputs.version }}
+          BRANCH: ${{ needs.build.outputs.branch }}
           STATUS: ${{ needs.publish.result }}
         shell: bash
         run: |
@@ -238,7 +232,7 @@ jobs:
           json='{
             "embeds": [
               {
-                "title": "'${GITHUB_REPOSITORY}':'${GITHUB_REF//refs\/heads\//}'",
+                "title": "'${GITHUB_REPOSITORY}':'${GITHUB_REF//refs\/heads\//}${BRANCH}'",
                 "url": "https://github.com/'${GITHUB_REPOSITORY}'/actions/runs/'${GITHUB_RUN_ID}'",
                 "color": '${COLOR:-15158332}',
                 "fields": [
