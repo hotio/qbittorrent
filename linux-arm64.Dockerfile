@@ -1,4 +1,4 @@
-FROM ghcr.io/hotio/base@sha256:6069ceeb6aec1a4b29e8d4bcc531a9cd5fdca9ccddf2e0d639e4a9b9727ce0d0
+FROM ghcr.io/hotio/base@sha256:e8e2e45c93bbfa47be2e26a2f638b4280910f6246404fecbb327dfc81ce15539
 
 ARG DEBIAN_FRONTEND="noninteractive"
 
