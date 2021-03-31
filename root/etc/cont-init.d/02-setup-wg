@@ -168,7 +168,20 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 
 	set +e
 
-	echo "[INFO] Your old ipv4 is \"${old_ipv4}\", your new ipv4 is \"$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)\"."
-	echo "[INFO] Your old ipv6 is \"${old_ipv6}\", your new ipv6 is \"$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)\"."
+	new_ipv4=$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)
+	if ! [[ ${new_ipv4} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+		echo "[ERROR] Your new ipv4 is not valid! Exiting..."
+		exit 1
+	fi
+	echo "[INFO] Your old ipv4 is \"${old_ipv4}\", your new ipv4 is \"${new_ipv4}\"."
+
+	if [[ ${ipv6_wanted} == "true" ]]; then
+		new_ipv6=$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)
+		if ! [[ ${new_ipv6} =~ ^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$ ]]; then
+			echo "[ERROR] Your new ipv6 is not valid! Exiting..."
+			exit 1
+		fi
+		echo "[INFO] Your old ipv6 is \"${old_ipv6}\", your new ipv6 is \"${new_ipv6}\"."
+	fi
 
 fi
