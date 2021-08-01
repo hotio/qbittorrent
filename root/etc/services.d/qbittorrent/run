@@ -3,4 +3,4 @@
 
 umask "${UMASK}"
 
-exec s6-setuidgid hotio /usr/bin/qbittorrent-nox --profile="${APP_DIR}" --webui-port=8080
+exec s6-setuidgid hotio /usr/bin/qbittorrent-nox --profile="${APP_DIR}" --webui-port="${WEBUI_PORTS%%/*}"
