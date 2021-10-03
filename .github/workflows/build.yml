@@ -124,14 +124,10 @@ jobs:
             PACKAGE_VERSION=${{ steps.prep.outputs.package-version }}
             ${{ steps.prep.outputs.build-args }}
 
-      - name: Dive Analysis
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
-        uses: yuichielectric/dive-action@0.0.4
-        with:
-          image: "ghcr.io/${{ steps.prep.outputs.tag }}"
-
-      - name: Run tests
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
+      - name: Show installed packages & Run tests
+        if: |
+          contains(steps.arch_check.outputs.check, 'passed') &&
+          contains(matrix.architecture, 'amd64')
         run: |
           bash update.sh tests ghcr.io/${{ steps.prep.outputs.tag }}
 
