@@ -8,7 +8,6 @@ on:
 jobs:
 
   check:
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -16,14 +15,13 @@ jobs:
 
       - name: Shellcheck
         run: |
-          shellcheck --version
-          if [[ -d ./root ]]; then
-            find "./root" -type f -print -exec shellcheck {} \;
-          else
-            true
-          fi
+          for file in $(find ./root/etc -type f); do
+            echo "Checking: $file"
+            shellcheck "$file"
+          done
 
   build:
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
     runs-on: ubuntu-20.04
     strategy:
       matrix:
