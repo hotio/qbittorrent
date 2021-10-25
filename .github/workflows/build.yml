@@ -103,11 +103,10 @@ jobs:
           push: true
           platforms: ${{ steps.prep.outputs.platform }}
           file: ./${{ matrix.architecture }}.Dockerfile
-          cache-from: ghcr.io/${{ steps.prep.outputs.cache }}
-          cache-to: ghcr.io/${{ steps.prep.outputs.cache }}
+          cache-from: ${{ steps.prep.outputs.cache }}
+          cache-to: ${{ steps.prep.outputs.cache }}
           tags: |
             ${{ steps.prep.outputs.tag }}
-            ghcr.io/${{ steps.prep.outputs.tag }}
           labels: |
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.title=${{ steps.prep.outputs.title }}
@@ -127,7 +126,7 @@ jobs:
           contains(steps.arch_check.outputs.check, 'passed') &&
           contains(matrix.architecture, 'amd64')
         run: |
-          bash update.sh tests ghcr.io/${{ steps.prep.outputs.tag }}
+          bash update.sh tests ${{ steps.prep.outputs.tag }}
 
   publish:
     runs-on: ubuntu-20.04
@@ -197,7 +196,7 @@ jobs:
         if: "contains(needs.publish.result, 'success')"
         run: |
           if [[ -f puppeteer.js ]]; then
-            bash update.sh screenshot ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}
+            bash update.sh screenshot ${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}
           fi
 
       - name: Send discord notification
@@ -213,7 +212,7 @@ jobs:
         shell: bash
         run: |
           export DOCKER_CLI_EXPERIMENTAL=enabled
-          [[ "${STATUS}" == "success" ]] && DIGESTS=$(docker manifest inspect ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7} | jq -r '.manifests[]  | "\(.digest | .[7:19]) \(.platform.os)/\(.platform.architecture)\(.platform.variant // "")"')
+          [[ "${STATUS}" == "success" ]] && DIGESTS=$(docker manifest inspect ${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7} | jq -r '.manifests[]  | "\(.digest | .[7:19]) \(.platform.os)/\(.platform.architecture)\(.platform.variant // "")"')
           COMMIT_MESSAGE="$(curl -u "${GITHUB_OWNER}:${GITHUB_TOKEN}" -fsSL --retry 5 "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}" | jq -r .commit.message | head -1)"
           [[ "${STATUS}" == "success" ]] && COLOR="3066993"
           CHANGELOG=$(jq -r '.changelog' < VERSION.json)
