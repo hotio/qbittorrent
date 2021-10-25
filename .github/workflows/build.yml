@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        registry: [docker.io, ghcr.io]
+        registry: [docker.io]
     needs: [build]
     steps:
       - name: Checkout
