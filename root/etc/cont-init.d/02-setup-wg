@@ -168,6 +168,9 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 
 	set +e
 
+	echo "[INFO] Delaying ip check by ${VPN_IP_CHECK_DELAY} seconds..."
+	sleep "${VPN_IP_CHECK_DELAY}"
+
 	new_ipv4=$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)
 	if ! [[ ${new_ipv4} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 		echo "[ERROR] Your new ipv4 is not valid! Exiting..."
