@@ -11,7 +11,8 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/ma
 
 ARG FULL_VERSION
 
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing qbittorrent-nox=${FULL_VERSION}
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community libtorrent-rasterbar && \
+    apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing qbittorrent-nox=${FULL_VERSION}
 
 ARG VUETORRENT_VERSION
 RUN curl -fsSL "https://github.com/wdaan/vuetorrent/releases/download/v${VUETORRENT_VERSION}/vuetorrent.zip" > "/tmp/vuetorrent.zip" && \
