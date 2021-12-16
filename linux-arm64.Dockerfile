@@ -11,7 +11,7 @@ RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/ma
 
 ARG FULL_VERSION
 
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.15/community libtorrent-rasterbar && \
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community libtorrent-rasterbar && \
     apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing qbittorrent-nox=${FULL_VERSION}
 
 ARG VUETORRENT_VERSION
