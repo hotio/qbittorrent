@@ -1,6 +1,4 @@
-FROM cr.hotio.dev/hotio/base@sha256:d816c752b9347dc8926001d55b72e684b48c76e40ae990cfaa5ddc0da5406462
-
-ARG DEBIAN_FRONTEND="noninteractive"
+FROM cr.hotio.dev/hotio/base@sha256:c96bfafa6be3ecc00ad9f64d5b45afc2c7957dec6c430c244a182729b3c10184
 
 ENV VPN_ENABLED="false" VPN_LAN_NETWORK="" VPN_CONF="wg0" VPN_ADDITIONAL_PORTS="" WEBUI_PORTS="8080/tcp,8080/udp" PRIVOXY_ENABLED="false" S6_SERVICES_GRACETIME=180000
 
@@ -8,26 +6,12 @@ EXPOSE 8080
 
 RUN ln -s "${CONFIG_DIR}" "${APP_DIR}/qBittorrent"
 
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main privoxy iptables iproute2 openresolv wireguard-tools && \
+    apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community ipcalc
+
 ARG FULL_VERSION
 
-RUN apt update && \
-    apt install -y --no-install-recommends --no-install-suggests \
-        gnupg && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:11371 --recv-keys 7CA69FC4 && echo "deb [arch=arm64] http://ppa.launchpad.net/qbittorrent-team/qbittorrent-stable/ubuntu focal main" | tee /etc/apt/sources.list.d/qbitorrent.list && \
-    apt update && \
-    apt install -y --no-install-recommends --no-install-suggests \
-        qbittorrent-nox=${FULL_VERSION} \
-        privoxy \
-        ipcalc \
-        iptables \
-        iproute2 \
-        openresolv \
-        wireguard-tools && \
-# clean up
-    apt purge -y gnupg && \
-    apt autoremove -y && \
-    apt clean && \
-    rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
+RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing qbittorrent-nox=${FULL_VERSION}
 
 ARG VUETORRENT_VERSION
 RUN curl -fsSL "https://github.com/wdaan/vuetorrent/releases/download/v${VUETORRENT_VERSION}/vuetorrent.zip" > "/tmp/vuetorrent.zip" && \

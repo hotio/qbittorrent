@@ -3,15 +3,14 @@
 if [[ ${1} == "checkdigests" ]]; then
     export DOCKER_CLI_EXPERIMENTAL=enabled
     image="cr.hotio.dev/hotio/base"
-    tag="focal"
+    tag="alpine"
     manifest=$(docker manifest inspect ${image}:${tag})
     [[ -z ${manifest} ]] && exit 1
     digest=$(echo "${manifest}" | jq -r '.manifests[] | select (.platform.architecture == "amd64" and .platform.os == "linux").digest') && sed -i "s#FROM ${image}.*\$#FROM ${image}@${digest}#g" ./linux-amd64.Dockerfile  && echo "${digest}"
-    digest=$(echo "${manifest}" | jq -r '.manifests[] | select (.platform.architecture == "arm" and .platform.os == "linux" and .platform.variant == "v7").digest') && sed -i "s#FROM ${image}.*\$#FROM ${image}@${digest}#g" ./linux-arm-v7.Dockerfile && echo "${digest}"
     digest=$(echo "${manifest}" | jq -r '.manifests[] | select (.platform.architecture == "arm64" and .platform.os == "linux").digest') && sed -i "s#FROM ${image}.*\$#FROM ${image}@${digest}#g" ./linux-arm64.Dockerfile  && echo "${digest}"
 elif [[ ${1} == "tests" ]]; then
     echo "List installed packages..."
-    docker run --rm --entrypoint="" "${2}" apt list --installed
+    docker run --rm --entrypoint="" "${2}" apk -vv info | sort
     echo "Check if app works..."
     app_url="http://localhost:8080"
     docker run --network host -d --name service "${2}"
@@ -30,11 +29,11 @@ elif [[ ${1} == "screenshot" ]]; then
 else
     vuetorrent_version=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/wdaan/vuetorrent/releases/latest" | jq -r .tag_name | sed s/v//g)
     [[ -z ${vuetorrent_version} ]] && exit 1
-    full_version=$(curl -fsSL "http://ppa.launchpad.net/qbittorrent-team/qbittorrent-stable/ubuntu/dists/focal/main/binary-arm64/Packages.gz" | gunzip -c | grep -A 7 -m 1 "Package: qbittorrent-nox" | awk -F ": " '/Version/{print $2;exit}')
-    version=$(echo "${full_version}" | sed -e "s/^.*://g" -e "s/~ubuntu.*//g")
+    full_version=$(curl -fsSL https://dl-cdn.alpinelinux.org/alpine/edge/testing/x86_64/ | grep -o -e ">qbittorrent-nox-[0-9].*.apk<" | sed -e "s/>qbittorrent-nox-//g" -e "s/.apk<//g")
+    version=$(echo "${full_version}" | sed -e "s/-.*//g")
     [[ -z ${version} ]] && exit 1
     old_version=$(jq -r '.version' < VERSION.json)
     changelog=$(jq -r '.changelog' < VERSION.json)
-    [[ "${old_version}" != "${version}" ]] && changelog="https://github.com/qbittorrent/qbittorrent/compare/${old_version: -9}...${version: -9}"
+    [[ "${old_version}" != "${version}" ]] && changelog="https://github.com/qbittorrent/qbittorrent/compare/release-${old_version}...release-${version}"
     echo '{"version":"'"${version}"'","full_version":"'"${full_version}"'","vuetorrent_version":"'"${vuetorrent_version}"'","changelog":"'"${changelog}"'"}' | jq . > VERSION.json
 fi
