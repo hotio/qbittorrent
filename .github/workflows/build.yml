@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        architecture: [linux-arm-v7, linux-arm64, linux-amd64]
+        architecture: [linux-arm64, linux-amd64]
     needs: [check]
     outputs:
       version: ${{ steps.prep.outputs.version }}
