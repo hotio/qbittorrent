@@ -107,6 +107,7 @@ jobs:
           cache-to: ${{ steps.prep.outputs.cache }}
           tags: |
             ${{ steps.prep.outputs.tag }}
+            ghcr.io/${{ steps.prep.outputs.tag }}
           labels: |
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.title=${{ steps.prep.outputs.title }}
@@ -132,7 +133,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        registry: [docker.io]
+        registry: [docker.io, ghcr.io]
     needs: [build]
     steps:
       - name: Checkout
