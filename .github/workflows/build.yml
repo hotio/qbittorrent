@@ -55,6 +55,7 @@ jobs:
         if: "contains(steps.arch_check.outputs.check, 'passed')"
         uses: docker/login-action@v1
         with:
+          registry: docker.io
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
@@ -65,6 +66,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PERSONAL_TOKEN }}
+
+      - name: Login to Quay
+        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Prepare
         if: "contains(steps.arch_check.outputs.check, 'passed')"
@@ -103,11 +112,12 @@ jobs:
           push: true
           platforms: ${{ steps.prep.outputs.platform }}
           file: ./${{ matrix.architecture }}.Dockerfile
-          cache-from: ${{ steps.prep.outputs.cache }}
-          cache-to: ${{ steps.prep.outputs.cache }}
+          cache-from: docker.io/${{ steps.prep.outputs.cache }}
+          cache-to: docker.io/${{ steps.prep.outputs.cache }}
           tags: |
-            ${{ steps.prep.outputs.tag }}
+            docker.io/${{ steps.prep.outputs.tag }}
             ghcr.io/${{ steps.prep.outputs.tag }}
+            quay.io/${{ steps.prep.outputs.tag }}
           labels: |
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.title=${{ steps.prep.outputs.title }}
@@ -127,13 +137,13 @@ jobs:
           contains(steps.arch_check.outputs.check, 'passed') &&
           contains(matrix.architecture, 'amd64')
         run: |
-          bash update.sh tests ${{ steps.prep.outputs.tag }}
+          bash update.sh tests cr.hotio.dev/${{ steps.prep.outputs.tag }}
 
   publish:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        registry: [docker.io, ghcr.io]
+        registry: [docker.io, ghcr.io, quay.io]
     needs: [build]
     steps:
       - name: Checkout
@@ -154,6 +164,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PERSONAL_TOKEN }}
+
+      - name: Login to Quay
+        if: matrix.registry == 'quay.io'
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Create manifests
         env:
@@ -197,7 +215,7 @@ jobs:
         if: "contains(needs.publish.result, 'success')"
         run: |
           if [[ -f puppeteer.js ]]; then
-            bash update.sh screenshot ${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}
+            bash update.sh screenshot cr.hotio.dev/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}
           fi
 
       - name: Send discord notification
@@ -213,7 +231,7 @@ jobs:
         shell: bash
         run: |
           export DOCKER_CLI_EXPERIMENTAL=enabled
-          [[ "${STATUS}" == "success" ]] && DIGESTS=$(docker manifest inspect ${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7} | jq -r '.manifests[]  | "\(.digest | .[7:19]) \(.platform.os)/\(.platform.architecture)\(.platform.variant // "")"')
+          [[ "${STATUS}" == "success" ]] && DIGESTS=$(docker manifest inspect cr.hotio.dev/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7} | jq -r '.manifests[]  | "\(.digest | .[7:19]) \(.platform.os)/\(.platform.architecture)\(.platform.variant // "")"')
           COMMIT_MESSAGE="$(curl -u "${GITHUB_OWNER}:${GITHUB_TOKEN}" -fsSL --retry 5 "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}" | jq -r .commit.message | head -1)"
           [[ "${STATUS}" == "success" ]] && COLOR="3066993"
           CHANGELOG=$(jq -r '.changelog' < VERSION.json)
