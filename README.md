@@ -12,4 +12,4 @@ The source is hosted at [GitHub](https://github.com/hotio). If you can't find it
 
 # Show your support
 
-You can show your support by giving us a star on Docker Hub or right here on GitHub, it's also possible to make a [donation](https://hotio.dev/donate).
+You can show your support by giving us a star on Docker Hub or/and GitHub, it's also possible to make a [donation](https://hotio.dev/donate).
