@@ -1,6 +1,6 @@
 {
-  "version": "4.4.3.1",
-  "full_version": "release-4.4.3.1_v1.2.17",
+  "version": "4.3.9",
+  "full_version": "release-4.3.9_v1.2.17",
   "vuetorrent_version": "0.18.1",
-  "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.4.3...release-4.4.3.1"
+  "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.4.3.1...release-4.3.9"
 }
