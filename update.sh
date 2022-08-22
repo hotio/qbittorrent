@@ -29,7 +29,7 @@ elif [[ ${1} == "screenshot" ]]; then
 else
     vuetorrent_version=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/wdaan/vuetorrent/releases/latest" | jq -r .tag_name | sed s/v//g)
     [[ -z ${vuetorrent_version} ]] && exit 1
-    qbts_latest_release="$(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json | jq -r '.qbittorrent')"
+    qbts_latest_release="$(curl -fsSL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json | jq -r '.qbittorrent')"
     full_version="$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/userdocs/qbittorrent-nox-static/releases" | jq -r 'first(.[] | select(.tag_name | contains ("release-'"${qbts_latest_release}"_v1.2.'")) | .tag_name)')"
     version=$(echo "${full_version}" | sed -e "s/release-//g" -e "s/_.*//g")
     [[ -z ${version} ]] && exit 1
