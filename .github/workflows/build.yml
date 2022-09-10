@@ -67,14 +67,6 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PERSONAL_TOKEN }}
 
-      - name: Login to Quay
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
-        uses: docker/login-action@v1
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USER }}
-          password: ${{ secrets.QUAY_TOKEN }}
-
       - name: Prepare
         if: "contains(steps.arch_check.outputs.check, 'passed')"
         id: prep
@@ -117,7 +109,6 @@ jobs:
           tags: |
             docker.io/${{ steps.prep.outputs.tag }}
             ghcr.io/${{ steps.prep.outputs.tag }}
-            quay.io/${{ steps.prep.outputs.tag }}
           labels: |
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.title=${{ steps.prep.outputs.title }}
@@ -143,7 +134,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        registry: [docker.io, ghcr.io, quay.io]
+        registry: [docker.io, ghcr.io]
     needs: [build]
     steps:
       - name: Checkout
@@ -164,14 +155,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PERSONAL_TOKEN }}
-
-      - name: Login to Quay
-        if: matrix.registry == 'quay.io'
-        uses: docker/login-action@v1
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USER }}
-          password: ${{ secrets.QUAY_TOKEN }}
 
       - name: Create manifests
         env:
