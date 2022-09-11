@@ -22,4 +22,4 @@ RUN curl -fsSL "https://github.com/wdaan/vuetorrent/releases/download/v${VUETORR
     chmod -R u=rwX,go=rX "${APP_DIR}/vuetorrent"
 
 COPY root/ /
-RUN chmod -R +x /etc/cont-init.d/ /etc/services.d/
+RUN chmod -R +x /etc/cont-init.d/ /etc/services.d/ /etc/cont-finish.d/

@@ -1,4 +1,0 @@
-#!/usr/bin/execlineb -S0
-# shellcheck shell=bash
-
-redirfd -w 2 /dev/null s6-svscanctl -t /var/run/s6/services
