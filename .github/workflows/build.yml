@@ -51,7 +51,7 @@ jobs:
           version: latest
           driver-opts: image=moby/buildkit:master
 
-      - name: Login to DockerHub
+      - name: Login to docker.io
         if: "contains(steps.arch_check.outputs.check, 'passed')"
         uses: docker/login-action@v1
         with:
@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Login to GitHub Container Registry
+      - name: Login to ghcr.io
         if: "contains(steps.arch_check.outputs.check, 'passed')"
         uses: docker/login-action@v1
         with:
@@ -140,7 +140,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Login to DockerHub
+      - name: Login to docker.io
         if: matrix.registry == 'docker.io'
         uses: docker/login-action@v1
         with:
@@ -148,7 +148,7 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Login to GitHub Container Registry
+      - name: Login to ghcr.io
         if: matrix.registry == 'ghcr.io'
         uses: docker/login-action@v1
         with:
@@ -186,13 +186,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.PERSONAL_TOKEN }}
 
       - name: Take screenshot
         if: "contains(needs.publish.result, 'success')"
