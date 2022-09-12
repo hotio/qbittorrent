@@ -35,5 +35,6 @@ else
     old_version=$(jq -r '.version' < VERSION.json)
     changelog=$(jq -r '.changelog' < VERSION.json)
     [[ "${old_version}" != "${version}" ]] && changelog="https://github.com/qbittorrent/qbittorrent/compare/release-${old_version}...release-${version}"
-    echo '{"version":"'"${version}"'","full_version":"'"${full_version}"'","vuetorrent_version":"'"${vuetorrent_version}"'","changelog":"'"${changelog}"'"}' | jq . > VERSION.json
+    version_json=$(cat ./VERSION.json)
+    jq '.version = "'"${version}"'" | .full_version = "'"${full_version}"'" | .vuetorrent_version = "'"${vuetorrent_version}"'" | .changelog = "'"${changelog}"'"' <<< "${version_json}" > VERSION.json
 fi
