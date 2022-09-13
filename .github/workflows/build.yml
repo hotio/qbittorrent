@@ -129,6 +129,7 @@ jobs:
         run: |
           version_json=$(cat ./VERSION.json)
           upstream_tag=$(jq -r '.upstream_tag' <<< "${version_json}")
+          upstream_image=$(jq -r '.upstream_image' <<< "${version_json}")
           if [[ ${upstream_tag} == alpine || ${upstream_image} == alpine]]; then
             docker run --rm --entrypoint="" "docker.io/${{ steps.prep.outputs.tag }}" apk -vv info | sort
           else
