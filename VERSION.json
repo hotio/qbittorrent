@@ -6,5 +6,6 @@
   "upstream_image": "cr.hotio.dev/hotio/base",
   "upstream_tag": "alpine",
   "upstream_digest_amd64": "sha256:f16b2df0fbefceb0978488fb4a17221819668504b8fd47b675b65e50b074c1c4",
-  "upstream_digest_arm64": "sha256:32f7802fe9903727645618677d0109a2da34a6d2efbc494f3afae50fdb7b2dd2"
+  "upstream_digest_arm64": "sha256:32f7802fe9903727645618677d0109a2da34a6d2efbc494f3afae50fdb7b2dd2",
+  "test_url": "http://localhost:8080"
 }
