@@ -146,8 +146,8 @@ jobs:
           if [[ ${test_url} != null ]]; then
             echo "Check if app works..."
             docker run --network host -d --name service "docker.io/${{ steps.prep.outputs.tag }}"
-            currenttime=$(date +%s); maxtime=$((currenttime+60)); while (! curl -fsSL "${test_url}" > /dev/null) && [[ "$currenttime" -lt "$maxtime" ]]; do sleep 1; currenttime=$(date +%s); done
-            curl -fsSL "${test_url}" > /dev/null
+            currenttime=$(date +%s); maxtime=$((currenttime+60)); while (! curl -fsSL -b /dev/shm/cookie "${test_url}" > /dev/null) && [[ "$currenttime" -lt "$maxtime" ]]; do sleep 1; currenttime=$(date +%s); done
+            curl -fsSL -b /dev/shm/cookie "${test_url}" > /dev/null
             status=$?
             echo "Show docker logs..."
             docker logs service
