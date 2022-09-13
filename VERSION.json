@@ -2,5 +2,7 @@
   "version": "4.4.5",
   "full_version": "release-4.4.5_v1.2.17",
   "vuetorrent_version": "0.18.1",
-  "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.4.4...release-4.4.5"
+  "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.4.4...release-4.4.5",
+  "upstream_image": "cr.hotio.dev/hotio/base",
+  "upstream_tag": "alpine"
 }
