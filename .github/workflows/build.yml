@@ -123,12 +123,35 @@ jobs:
             PACKAGE_VERSION=${{ steps.prep.outputs.package-version }}
             ${{ steps.prep.outputs.build-args }}
 
-      - name: Show installed packages & Run tests
+      - name: Show installed packages
+        if: |
+          contains(steps.arch_check.outputs.check, 'passed')
+        run: |
+          version_json=$(cat ./VERSION.json)
+          upstream_tag=$(jq -r '.upstream_tag' <<< "${version_json}")
+          if [[ ${upstream_tag} == alpine ]]; then
+            docker run --rm --entrypoint="" "docker.io/${{ steps.prep.outputs.tag }}" apk -vv info | sort
+          else
+            docker run --rm --entrypoint="" "docker.io/${{ steps.prep.outputs.tag }}" apt list --installed
+          fi
+
+      - name: Run test
         if: |
           contains(steps.arch_check.outputs.check, 'passed') &&
           contains(matrix.architecture, 'amd64')
         run: |
-          bash update.sh tests docker.io/${{ steps.prep.outputs.tag }}
+          version_json=$(cat ./VERSION.json)
+          test_url=$(jq -r '.test_url' <<< "${version_json}")
+          if [[ ${test_url} != null ]]; then
+            echo "Check if app works..."
+            docker run --network host -d --name service "docker.io/${{ steps.prep.outputs.tag }}"
+            currenttime=$(date +%s); maxtime=$((currenttime+60)); while (! curl -fsSL "${test_url}" > /dev/null) && [[ "$currenttime" -lt "$maxtime" ]]; do sleep 1; currenttime=$(date +%s); done
+            curl -fsSL "${test_url}" > /dev/null
+            status=$?
+            echo "Show docker logs..."
+            docker logs service
+            exit ${status}
+          fi
 
   publish:
     runs-on: ubuntu-20.04
@@ -187,13 +210,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Take screenshot
-        if: "contains(needs.publish.result, 'success')"
-        run: |
-          if [[ -f puppeteer.js ]]; then
-            bash update.sh screenshot docker.io/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}
-          fi
-
       - name: Send discord notification
         if: "!contains(github.event.head_commit.message, 'skip ci')"
         env:
@@ -213,9 +229,6 @@ jobs:
           CHANGELOG=$(jq -r '.changelog' < VERSION.json)
           if [[ ${CHANGELOG} != null ]]; then
             VERSION="[${VERSION:----}](${CHANGELOG})"
-          fi
-          if [[ ! -f "screenshot.png" ]]; then
-              curl -fsSL --retry 5 "https://hotio.dev/img/pullio-background.png" > screenshot.png
           fi
           json='{
             "embeds": [
@@ -246,16 +259,13 @@ jobs:
                 "footer": {
                   "text": "Powered by GitHub Actions"
                 },
-                "timestamp": "'$(date -u +'%FT%T.%3NZ')'",
-                "image": {
-                  "url": "attachment://screenshot.png"
-                }
+                "timestamp": "'$(date -u +'%FT%T.%3NZ')'"
               }
             ]
           }'
-          curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
+          curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
           if [[ -n ${EXTRA_DISCORD_WEBHOOK} ]]; then
-            curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null
+            curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null
           fi
 
   tags:
