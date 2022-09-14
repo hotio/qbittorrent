@@ -176,8 +176,7 @@ jobs:
         with:
           source: ${{ steps.prep_test.outputs.url }}
           destination: screenshot.png
-          width: 1920
-          height: 1080
+          delay: 5
 
   publish:
     runs-on: ubuntu-20.04
