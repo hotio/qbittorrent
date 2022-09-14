@@ -136,23 +136,48 @@ jobs:
             docker run --rm --entrypoint="" "docker.io/${{ steps.prep.outputs.tag }}" apt list --installed
           fi
 
-      - name: Run test
+      - name: Prepare for test
         if: |
           contains(steps.arch_check.outputs.check, 'passed') &&
           contains(matrix.architecture, 'amd64')
+        id: prep_test
         run: |
           version_json=$(cat ./VERSION.json)
           test_url=$(jq -r '.test_url' <<< "${version_json}")
           if [[ ${test_url} != null ]]; then
-            echo "Check if app works..."
-            docker run --network host -d --name service "docker.io/${{ steps.prep.outputs.tag }}"
-            currenttime=$(date +%s); maxtime=$((currenttime+60)); while (! curl -fsSL -b /dev/shm/cookie "${test_url}" > /dev/null) && [[ "$currenttime" -lt "$maxtime" ]]; do sleep 1; currenttime=$(date +%s); done
-            curl -fsSL -b /dev/shm/cookie "${test_url}" > /dev/null
-            status=$?
-            echo "Show docker logs..."
-            docker logs service
-            exit ${status}
+            echo ::set-output name=url::${test_url}
+            echo ::set-output name=check::passed
+          else
+            echo ::set-output name=check::failed
           fi
+
+      - name: Run test
+        if: |
+          contains(steps.arch_check.outputs.check, 'passed') &&
+          contains(steps.prep_test.outputs.check, 'passed') &&
+          contains(matrix.architecture, 'amd64')
+        run: |
+          test_url=${{ steps.prep_test.outputs.url }}
+          echo "Check if app works..."
+          docker run --network host -d --name service "docker.io/${{ steps.prep.outputs.tag }}"
+          currenttime=$(date +%s); maxtime=$((currenttime+60)); while (! curl -fsSL -b /dev/shm/cookie "${test_url}" > /dev/null) && [[ "$currenttime" -lt "$maxtime" ]]; do sleep 1; currenttime=$(date +%s); done
+          curl -fsSL -b /dev/shm/cookie "${test_url}" > /dev/null
+          status=$?
+          echo "Show docker logs..."
+          docker logs service
+          exit ${status}
+
+      - name: Take screenshot
+        if: |
+          contains(steps.arch_check.outputs.check, 'passed') &&
+          contains(steps.prep_test.outputs.check, 'passed') &&
+          contains(matrix.architecture, 'amd64')
+        uses: swinton/screenshot-website@v1.x
+        with:
+          source: ${{ steps.prep_test.outputs.url }}
+          destination: screenshot.png
+          width: 1920
+          height: 1080
 
   publish:
     runs-on: ubuntu-20.04
@@ -211,6 +236,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Download screenshot
+        continue-on-error: true
+        uses: actions/download-artifact@v3
+        with:
+          name: screenshot
+
       - name: Send discord notification
         if: "!contains(github.event.head_commit.message, 'skip ci')"
         env:
@@ -230,6 +261,9 @@ jobs:
           CHANGELOG=$(jq -r '.changelog' < VERSION.json)
           if [[ ${CHANGELOG} != null ]]; then
             VERSION="[${VERSION:----}](${CHANGELOG})"
+          fi
+          if [[ ! -f "screenshot.png" ]]; then
+            curl -fsSL --retry 5 "https://hotio.dev/img/pullio-background.png" > screenshot.png
           fi
           json='{
             "embeds": [
@@ -260,13 +294,16 @@ jobs:
                 "footer": {
                   "text": "Powered by GitHub Actions"
                 },
-                "timestamp": "'$(date -u +'%FT%T.%3NZ')'"
+                "timestamp": "'$(date -u +'%FT%T.%3NZ')'",
+                "image": {
+                  "url": "attachment://screenshot.png"
+                }
               }
             ]
           }'
-          curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
+          curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
           if [[ -n ${EXTRA_DISCORD_WEBHOOK} ]]; then
-            curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null
+            curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null
           fi
 
   tags:
