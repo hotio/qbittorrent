@@ -97,8 +97,36 @@ jobs:
           echo "::set-output name=build-args::${ARGS}"
           echo "::set-output name=package-version::${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}"
 
-      - name: Build and push
+      - name: Build and push - Attempt 1
+        continue-on-error: true
         if: "contains(steps.arch_check.outputs.check, 'passed')"
+        id: build_attempt1
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          platforms: ${{ steps.prep.outputs.platform }}
+          file: ./${{ matrix.architecture }}.Dockerfile
+          cache-from: docker.io/${{ steps.prep.outputs.cache }}
+          cache-to: docker.io/${{ steps.prep.outputs.cache }}
+          tags: |
+            docker.io/${{ steps.prep.outputs.tag }}
+            ghcr.io/${{ steps.prep.outputs.tag }}
+          labels: |
+            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+            org.opencontainers.image.title=${{ steps.prep.outputs.title }}
+            org.opencontainers.image.revision=${{ steps.prep.outputs.revision }}
+            org.opencontainers.image.source=${{ steps.prep.outputs.source }}
+            org.opencontainers.image.vendor=${{ steps.prep.outputs.vendor }}
+            org.opencontainers.image.url=${{ steps.prep.outputs.url }}
+            org.opencontainers.image.version=${{ steps.prep.outputs.version }}
+          build-args: |
+            GITHUB_TOKEN=${{ secrets.PERSONAL_TOKEN }}
+            BUILD_ARCHITECTURE=${{ matrix.architecture }}
+            PACKAGE_VERSION=${{ steps.prep.outputs.package-version }}
+            ${{ steps.prep.outputs.build-args }}
+
+      - name: Build and push - Attempt 2
+        if: (steps.build_attempt1.outcome == 'failure')
         uses: docker/build-push-action@v3
         with:
           push: true
@@ -205,7 +233,33 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.PERSONAL_TOKEN }}
 
-      - name: Create manifests
+      - name: Create manifests - Attempt 1
+        continue-on-error: true
+        id: manifest_attempt1
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+        run: |
+          IMAGE=${{ matrix.registry }}/${GITHUB_REPOSITORY}
+          TAG=${GITHUB_REF//refs\/heads\//}
+          SOURCE=${IMAGE}:${TAG}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}
+          VERSION=${{ needs.build.outputs.version }}
+          BRANCH=${{ needs.build.outputs.branch }}
+          [[ -f linux-amd64.Dockerfile ]]  && AMD64=${SOURCE}-linux-amd64
+          [[ -f linux-arm64.Dockerfile ]]  && ARM64=${SOURCE}-linux-arm64
+          [[ -f linux-arm-v7.Dockerfile ]] && ARMV7=${SOURCE}-linux-arm-v7
+          docker manifest create ${IMAGE}:${TAG}${BRANCH} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push   ${IMAGE}:${TAG}${BRANCH}
+          docker manifest create ${IMAGE}:${TAG}${BRANCH}-${VERSION//\~/-} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push   ${IMAGE}:${TAG}${BRANCH}-${VERSION//\~/-}
+          docker manifest create ${IMAGE}:${TAG}-${GITHUB_SHA:0:7} ${AMD64} ${ARM64} ${ARMV7}
+          docker manifest push   ${IMAGE}:${TAG}-${GITHUB_SHA:0:7}
+          if [[ ${TAG} == release ]]; then
+            docker manifest create ${IMAGE}:latest ${AMD64} ${ARM64} ${ARMV7}
+            docker manifest push   ${IMAGE}:latest
+          fi
+
+      - name: Create manifests - Attempt 2
+        if: (steps.manifest_attempt1.outcome == 'failure')
         env:
           DOCKER_CLI_EXPERIMENTAL: enabled
         run: |
@@ -230,7 +284,7 @@ jobs:
 
   notify:
     runs-on: ubuntu-20.04
-    if: ${{ always() }}
+    if: always()
     needs: [build, publish]
     steps:
       - name: Checkout
