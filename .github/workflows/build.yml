@@ -125,6 +125,11 @@ jobs:
             PACKAGE_VERSION=${{ steps.prep.outputs.package-version }}
             ${{ steps.prep.outputs.build-args }}
 
+      - name: Sleep
+        if: (steps.build_attempt1.outcome == 'failure')
+        run: |
+          sleep 30
+
       - name: Build and push - Attempt 2
         if: (steps.build_attempt1.outcome == 'failure')
         uses: docker/build-push-action@v3
@@ -257,6 +262,11 @@ jobs:
             docker manifest create ${IMAGE}:latest ${AMD64} ${ARM64} ${ARMV7}
             docker manifest push   ${IMAGE}:latest
           fi
+
+      - name: Sleep
+        if: (steps.manifest_attempt1.outcome == 'failure')
+        run: |
+          sleep 30
 
       - name: Create manifests - Attempt 2
         if: (steps.manifest_attempt1.outcome == 'failure')
