@@ -281,13 +281,17 @@ jobs:
           [[ -f linux-amd64.Dockerfile ]]  && AMD64=${SOURCE}-linux-amd64
           [[ -f linux-arm64.Dockerfile ]]  && ARM64=${SOURCE}-linux-arm64
           [[ -f linux-arm-v7.Dockerfile ]] && ARMV7=${SOURCE}-linux-arm-v7
+          docker manifest rm     ${IMAGE}:${TAG}${BRANCH} || true
           docker manifest create ${IMAGE}:${TAG}${BRANCH} ${AMD64} ${ARM64} ${ARMV7}
           docker manifest push   ${IMAGE}:${TAG}${BRANCH}
+          docker manifest rm     ${IMAGE}:${TAG}${BRANCH}-${VERSION//\~/-} || true
           docker manifest create ${IMAGE}:${TAG}${BRANCH}-${VERSION//\~/-} ${AMD64} ${ARM64} ${ARMV7}
           docker manifest push   ${IMAGE}:${TAG}${BRANCH}-${VERSION//\~/-}
+          docker manifest rm     ${IMAGE}:${TAG}-${GITHUB_SHA:0:7} || true
           docker manifest create ${IMAGE}:${TAG}-${GITHUB_SHA:0:7} ${AMD64} ${ARM64} ${ARMV7}
           docker manifest push   ${IMAGE}:${TAG}-${GITHUB_SHA:0:7}
           if [[ ${TAG} == release ]]; then
+            docker manifest rm     ${IMAGE}:latest || true
             docker manifest create ${IMAGE}:latest ${AMD64} ${ARM64} ${ARMV7}
             docker manifest push   ${IMAGE}:latest
           fi
