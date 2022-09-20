@@ -373,32 +373,3 @@ jobs:
           if [[ -n ${EXTRA_DISCORD_WEBHOOK} ]]; then
             curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null
           fi
-
-  tags:
-    runs-on: ubuntu-20.04
-    needs: [build, publish]
-    steps:
-      - name: Update tags.json
-        env:
-          GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-          VERSION: ${{ needs.build.outputs.version }}
-        shell: bash
-        run: |
-          git config --global user.email "${GITHUB_OWNER}@users.noreply.github.com"
-          git config --global user.name "${GITHUB_OWNER}"
-          git clone -b "master" "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ${GITHUB_WORKSPACE}/master
-          cd ${GITHUB_WORKSPACE}/master || exit 1
-          ls -lah
-          if [[ -f ./tags.json ]]; then
-            json=$(cat ./tags.json)
-            jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .version) |= "'"${VERSION//\~/-}"'"' <<< "${json}" > ./tags.json
-            json=$(cat ./tags.json)
-            jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .lastUpdated) |= "'"$(date -u +'%FT%T.%3NZ')"'"' <<< "${json}" > ./tags.json
-            json=$(cat ./tags.json)
-            jq '(.tags[] | select(.name == "'"${GITHUB_REF//refs\/heads\//}"'") | .commit) |= "'"${GITHUB_SHA:0:7}"'"' <<< "${json}" > ./tags.json
-            git add .
-            if git commit -m ":${GITHUB_REF//refs\/heads\//} => [${VERSION//\~/-}, ${GITHUB_SHA:0:7}]"; then
-              git push
-            fi
-          fi
