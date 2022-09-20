@@ -83,7 +83,7 @@ jobs:
           echo ::set-output name=tag::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}-${{ matrix.architecture }}
           VERSION=$(jq -r '.version // empty' < VERSION.json)
           if [[ -z ${VERSION} ]]; then
-            VERSION=$(date +"%Y%m%d%H%M%S")
+            VERSION=$(date --utc --date=@$(git show -s --format=%ct $(git rev-parse --short HEAD)) +'%Y%m%d%H%M%S')
           fi
           echo ::set-output name=version::${VERSION}
           BRANCH=$(jq -r '.branch // empty' < VERSION.json)
