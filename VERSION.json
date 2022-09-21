@@ -6,7 +6,7 @@
   "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.4.4...release-4.4.5",
   "upstream_image": "cr.hotio.dev/hotio/base",
   "upstream_tag": "alpine",
-  "upstream_digest_amd64": "sha256:782cd49f84365ff7cc291acfb6d039b15403aefe39fc3c884f1ac6fe87514e5d",
-  "upstream_digest_arm64": "sha256:fa5b5977bae89d31fb1ba0c11729bc39022294beaa431730b53783dd6e7634d8",
+  "upstream_digest_amd64": "sha256:9734281959632fe39c34eae1688bd71bfe536737ddb8e38b9384338aff4c2a26",
+  "upstream_digest_arm64": "sha256:1e7f3679df70a539137e4011b9411547c5c90fdfa28dc543cb39fb0298c82ea6",
   "test_url": "http://localhost:8080"
 }
