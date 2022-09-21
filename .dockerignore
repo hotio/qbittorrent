@@ -2,6 +2,7 @@
 .github
 .gitattributes
 build.sh
+LICENSE
 README.md
 update-digests.sh
 update-versions.sh
