@@ -255,7 +255,8 @@ jobs:
           docker manifest push   ${IMAGE}:${TAG}${BRANCH}-${VERSION//\~/-}
           docker manifest create ${IMAGE}:${TAG}-${GITHUB_SHA:0:7} ${AMD64} ${ARM64} ${ARMV7}
           docker manifest push   ${IMAGE}:${TAG}-${GITHUB_SHA:0:7}
-          if [[ ${TAG} == release ]]; then
+          IS_LATEST=$(jq -r '.latest // empty' < VERSION.json)
+          if [[ ${IS_LATEST} == true ]]; then
             docker manifest create ${IMAGE}:latest ${AMD64} ${ARM64} ${ARMV7}
             docker manifest push   ${IMAGE}:latest
           fi
@@ -287,7 +288,8 @@ jobs:
           docker manifest rm     ${IMAGE}:${TAG}-${GITHUB_SHA:0:7} || true
           docker manifest create ${IMAGE}:${TAG}-${GITHUB_SHA:0:7} ${AMD64} ${ARM64} ${ARMV7}
           docker manifest push   ${IMAGE}:${TAG}-${GITHUB_SHA:0:7}
-          if [[ ${TAG} == release ]]; then
+          IS_LATEST=$(jq -r '.latest // empty' < VERSION.json)
+          if [[ ${IS_LATEST} == true ]]; then
             docker manifest rm     ${IMAGE}:latest || true
             docker manifest create ${IMAGE}:latest ${AMD64} ${ARM64} ${ARMV7}
             docker manifest push   ${IMAGE}:latest
