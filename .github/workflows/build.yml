@@ -344,7 +344,7 @@ jobs:
                     "value": "```'${COMMIT_MESSAGE//\"/\\\"}'```"
                   },
                   {
-                    "name": "Commit",
+                    "name": "Commit SHA",
                     "value": "['${GITHUB_SHA:0:7}'](https://github.com/'${GITHUB_REPOSITORY}'/commit/'${GITHUB_SHA}')",
                     "inline": true
                   },
