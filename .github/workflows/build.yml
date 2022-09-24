@@ -18,7 +18,6 @@ jobs:
           done
 
   build:
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -310,7 +309,6 @@ jobs:
           name: screenshot
 
       - name: Send discord notification
-        if: "!contains(github.event.head_commit.message, 'skip ci')"
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           EXTRA_DISCORD_WEBHOOK: ${{ secrets.EXTRA_DISCORD_WEBHOOK }}
