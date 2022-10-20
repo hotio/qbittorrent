@@ -173,25 +173,37 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 
 	new_ipv4=$(curl -m 10 -4 -fsSL icanhazip.com 2> /dev/null)
 	if ! [[ ${new_ipv4} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-		echo "[ERROR] Failed to determine your new ipv4 by querying \"icanhazip.com\"! Try increasing \"VPN_IP_CHECK_DELAY\" or generating a new \"${VPN_CONF}.conf\" from your provider. Exiting..."
-		exit 1
+		echo "[ERROR] Failed to determine your new ipv4 by querying \"icanhazip.com\"! Try increasing \"VPN_IP_CHECK_DELAY\" or generating a new \"${VPN_CONF}.conf\" from your provider."
+		if [[ ${VPN_IP_CHECK_EXIT} == "true" ]]; then
+			echo "Exiting..."
+			exit 1
+		fi
 	fi
 	echo "[INFO] Your old ipv4 is \"${old_ipv4}\", your new ipv4 is \"${new_ipv4}\"."
 	if [[ "${old_ipv4}" == "${new_ipv4}" ]]; then
-		echo "[ERROR] Your old and new ipv4 are the same! Exiting..."
-		exit 1
+		echo "[ERROR] Your old and new ipv4 are the same!"
+		if [[ ${VPN_IP_CHECK_EXIT} == "true" ]]; then
+			echo "Exiting..."
+			exit 1
+		fi
 	fi
 
 	if [[ ${ipv6_wanted} == "true" ]]; then
 		new_ipv6=$(curl -m 10 -6 -fsSL icanhazip.com 2> /dev/null)
 		if ! [[ ${new_ipv6} =~ ^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$ ]]; then
-			echo "[ERROR] Failed to determine your new ipv6 by querying \"icanhazip.com\"! Try increasing \"VPN_IP_CHECK_DELAY\" or generating a new \"${VPN_CONF}.conf\" from your provider. Exiting..."
-			exit 1
+			echo "[ERROR] Failed to determine your new ipv6 by querying \"icanhazip.com\"! Try increasing \"VPN_IP_CHECK_DELAY\" or generating a new \"${VPN_CONF}.conf\" from your provider."
+			if [[ ${VPN_IP_CHECK_EXIT} == "true" ]]; then
+				echo "Exiting..."
+				exit 1
+			fi
 		fi
 		echo "[INFO] Your old ipv6 is \"${old_ipv6}\", your new ipv6 is \"${new_ipv6}\"."
 		if [[ "${old_ipv6}" == "${new_ipv6}" ]]; then
-			echo "[ERROR] Your old and new ipv6 are the same! Exiting..."
-			exit 1
+			echo "[ERROR] Your old and new ipv6 are the same!"
+			if [[ ${VPN_IP_CHECK_EXIT} == "true" ]]; then
+				echo "Exiting..."
+				exit 1
+			fi
 		fi
 	fi
 
