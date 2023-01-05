@@ -198,6 +198,7 @@ jobs:
           fi
 
       - name: Take screenshot
+        continue-on-error: true
         if: |
           contains(steps.arch_check.outputs.check, 'passed') &&
           contains(steps.prep_test.outputs.check, 'passed') &&
