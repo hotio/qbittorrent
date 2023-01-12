@@ -45,7 +45,7 @@ jobs:
         with:
           install: true
           version: latest
-          driver-opts: image=moby/buildkit:master
+          driver-opts: image=moby/buildkit:v0.10.6
 
       - name: Login to docker.io
         if: "contains(steps.arch_check.outputs.check, 'passed')"
