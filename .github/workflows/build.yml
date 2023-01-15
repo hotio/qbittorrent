@@ -87,9 +87,6 @@ jobs:
             echo "branch=-${BRANCH}" >> $GITHUB_OUTPUT
           fi
           ARGS="$(jq -r 'to_entries[] | [(.key | ascii_upcase),.value] | join("=")' < VERSION.json)"
-          ARGS="${ARGS//'%'/'%25'}"
-          ARGS="${ARGS//$'\n'/'%0A'}"
-          ARGS="${ARGS//$'\r'/'%0D'}"
           echo "build-args=${ARGS}" >> $GITHUB_OUTPUT
           echo "package-version=${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
 
