@@ -33,7 +33,7 @@ jobs:
       - name: Check if architecture exists
         id: arch_check
         run: |
-          (test -f ${{ matrix.architecture }}.Dockerfile && echo "check=passed" >> $GITHUB_OUTPUT || echo "check=failed" >> $GITHUB_OUTPUT
+          (test -f ${{ matrix.architecture }}.Dockerfile && echo "check=passed" >> $GITHUB_OUTPUT) || echo "check=failed" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         if: "contains(steps.arch_check.outputs.check, 'passed')"
