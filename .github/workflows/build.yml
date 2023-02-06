@@ -97,7 +97,7 @@ jobs:
         continue-on-error: true
         if: "contains(steps.arch_check.outputs.check, 'passed')"
         id: build_attempt1
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           push: true
           platforms: ${{ steps.prep.outputs.platform }}
@@ -128,7 +128,7 @@ jobs:
 
       - name: Build and push - Attempt 2
         if: (steps.build_attempt1.outcome == 'failure')
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           push: true
           platforms: ${{ steps.prep.outputs.platform }}
