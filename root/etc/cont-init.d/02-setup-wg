@@ -131,11 +131,6 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		[[ "$(cat "/proc/sys/net/ipv6/conf/${file##*/}/disable_ipv6")" == "0" ]] && ipv6_wanted="true"
 	done
 
-	if [[ -z "${ipv6_wanted}" ]] && [[ -n "${old_ipv6}" ]]; then
-		echo "[ERROR] ipv6 is disabled, but we got data back in our ipv6 lookup. Exiting..."
-		exit 1
-	fi
-
 	[[ -z "${ipv6_wanted}" ]] && echo "[INFO] ipv6 is disabled, we will not set ip6tables rules."
 
 	if [[ ${ipv6_wanted} == "true" ]]; then
