@@ -8,7 +8,7 @@ if [[ ${upstream_image} == null || ${upstream_tag} == null ]]; then
     jq '.upstream_image = "'"cr.hotio.dev/hotio/base"'" | .upstream_tag = "'"alpine"'"' <<< "${version_json}" > VERSION.json
     exit 0
 fi
-manifest=$(docker manifest inspect "${upstream_image}:${upstream_tag}")
+manifest=$(skopeo inspect --raw "docker://${upstream_image}:${upstream_tag}")
 [[ -z ${manifest} ]] && exit 1
 upstream_digest_amd64=$(echo "${manifest}" | jq -r '.manifests[] | select (.platform.architecture == "amd64" and .platform.os == "linux").digest')
 upstream_digest_arm64=$(echo "${manifest}" | jq -r '.manifests[] | select (.platform.architecture == "arm64" and .platform.os == "linux").digest')
