@@ -31,9 +31,6 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 		chmod 600 "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"
 	fi
 
-	old_ipv4=$(dig -4 TXT +short whoami.cloudflare @1.1.1.1 ch 2>/dev/null | tr -d '"')
-	old_ipv6=$(dig -6 TXT +short whoami.cloudflare @2606:4700:4700::1111 ch 2>/dev/null | tr -d '"')
-
 	if wg-quick down "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf" > /dev/null 2>&1; then
 		echo "[INFO] WireGuard is still running. Stopping WireGuard..."
 		sleep 1
@@ -162,44 +159,5 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	fi
 
 	set +e
-
-	echo "[INFO] Delaying ip check by ${VPN_IP_CHECK_DELAY} seconds..."
-	sleep "${VPN_IP_CHECK_DELAY}"
-
-	new_ipv4=$(dig -4 TXT +short whoami.cloudflare @1.1.1.1 ch 2>/dev/null | tr -d '"')
-	if ! [[ ${new_ipv4} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-		echo "[ERROR] Failed to determine your new ipv4! Try increasing \"VPN_IP_CHECK_DELAY\" or generating a new \"${VPN_CONF}.conf\" from your provider."
-		if [[ ${VPN_IP_CHECK_EXIT} == "true" ]]; then
-			echo "Exiting..."
-			exit 1
-		fi
-	fi
-	echo "[INFO] Your old ipv4 is \"${old_ipv4}\", your new ipv4 is \"${new_ipv4}\"."
-	if [[ "${old_ipv4}" == "${new_ipv4}" ]]; then
-		echo "[ERROR] Your old and new ipv4 are the same!"
-		if [[ ${VPN_IP_CHECK_EXIT} == "true" ]]; then
-			echo "Exiting..."
-			exit 1
-		fi
-	fi
-
-	if [[ ${ipv6_wanted} == "true" ]]; then
-		new_ipv6=$(dig -6 TXT +short whoami.cloudflare @2606:4700:4700::1111 ch 2>/dev/null | tr -d '"')
-		if ! [[ ${new_ipv6} =~ ^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$ ]]; then
-			echo "[ERROR] Failed to determine your new ipv6! Try increasing \"VPN_IP_CHECK_DELAY\" or generating a new \"${VPN_CONF}.conf\" from your provider."
-			if [[ ${VPN_IP_CHECK_EXIT} == "true" ]]; then
-				echo "Exiting..."
-				exit 1
-			fi
-		fi
-		echo "[INFO] Your old ipv6 is \"${old_ipv6}\", your new ipv6 is \"${new_ipv6}\"."
-		if [[ "${old_ipv6}" == "${new_ipv6}" ]]; then
-			echo "[ERROR] Your old and new ipv6 are the same!"
-			if [[ ${VPN_IP_CHECK_EXIT} == "true" ]]; then
-				echo "Exiting..."
-				exit 1
-			fi
-		fi
-	fi
 
 fi
