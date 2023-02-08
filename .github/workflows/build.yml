@@ -33,7 +33,7 @@ jobs:
       - name: Check if architecture exists
         id: arch_check
         run: |
-          (test -f ${{ matrix.architecture }}.Dockerfile && echo ::set-output name=check::passed) || echo ::set-output name=check::failed
+          (test -f ${{ matrix.architecture }}.Dockerfile && echo "check=passed" >> $GITHUB_OUTPUT) || echo "check=failed" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         if: "contains(steps.arch_check.outputs.check, 'passed')"
@@ -68,30 +68,28 @@ jobs:
         id: prep
         run: |
           ARCHITECTURE=${{ matrix.architecture }}
-          echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          echo ::set-output name=title::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}
-          echo ::set-output name=revision::${GITHUB_SHA}
-          echo ::set-output name=source::${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${GITHUB_REF//refs\/heads\//}
-          echo ::set-output name=vendor::${{ github.repository_owner }}
-          echo ::set-output name=url::${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/master/README.md
-          echo ::set-output name=platform::${ARCHITECTURE//-/\/}
-          echo ::set-output name=cache::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-cache-${{ matrix.architecture }}
-          echo ::set-output name=tag::${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}-${{ matrix.architecture }}
+          echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+          echo "title=${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}" >> $GITHUB_OUTPUT
+          echo "revision=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          echo "source=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/tree/${GITHUB_REF//refs\/heads\//}" >> $GITHUB_OUTPUT
+          echo "vendor=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
+          echo "url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/master/README.md" >> $GITHUB_OUTPUT
+          echo "platform=${ARCHITECTURE//-/\/}" >> $GITHUB_OUTPUT
+          echo "cache=${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-cache-${{ matrix.architecture }}" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}-${{ matrix.architecture }}" >> $GITHUB_OUTPUT
           VERSION=$(jq -r '.version // empty' < VERSION.json)
           if [[ -z ${VERSION} ]]; then
             VERSION=$(date --utc --date=@$(git show -s --format=%ct $(git rev-parse --short HEAD)) +'%Y%m%d%H%M%S')
           fi
-          echo ::set-output name=version::${VERSION}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
           BRANCH=$(jq -r '.branch // empty' < VERSION.json)
           if [[ -n ${BRANCH} ]]; then
-            echo ::set-output name=branch::-${BRANCH}
+            echo "branch=-${BRANCH}" >> $GITHUB_OUTPUT
           fi
-          ARGS="$(jq -r 'to_entries[] | [(.key | ascii_upcase),.value] | join("=")' < VERSION.json)"
-          ARGS="${ARGS//'%'/'%25'}"
-          ARGS="${ARGS//$'\n'/'%0A'}"
-          ARGS="${ARGS//$'\r'/'%0D'}"
-          echo "::set-output name=build-args::${ARGS}"
-          echo "::set-output name=package-version::${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}"
+          echo 'build-args<<EOF' >> $GITHUB_OUTPUT
+          jq -r 'to_entries[] | [(.key | ascii_upcase),.value] | join("=")' < VERSION.json >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+          echo "package-version=${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
 
       - name: Build and push - Attempt 1
         continue-on-error: true
@@ -174,10 +172,10 @@ jobs:
           version_json=$(cat ./VERSION.json)
           test_url=$(jq -r '.test_url' <<< "${version_json}")
           if [[ ${test_url} != null ]]; then
-            echo ::set-output name=url::${test_url}
-            echo ::set-output name=check::passed
+            echo "url=${test_url}" >> $GITHUB_OUTPUT
+            echo "check=passed" >> $GITHUB_OUTPUT
           else
-            echo ::set-output name=check::failed
+            echo "check=failed" >> $GITHUB_OUTPUT
           fi
 
       - name: Run test
