@@ -1,10 +1,10 @@
 {
   "latest": true,
   "description": "Releases",
-  "version": "4.5.1",
-  "full_version": "release-4.5.1_v1.2.18",
+  "version": "4.5.0",
+  "full_version": "release-4.5.0_v1.2.18",
   "vuetorrent_version": "1.3.1",
-  "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.5.0...release-4.5.1",
+  "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.5.1...release-4.5.0",
   "upstream_image": "cr.hotio.dev/hotio/base",
   "upstream_tag": "alpine",
   "upstream_digest_amd64": "sha256:b569a86bd966e83bb55c1bd256cd5c3fd3321cda464c6b05c4526a5a0492bf17",
