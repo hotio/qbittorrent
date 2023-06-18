@@ -76,7 +76,7 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	nw_interface=$(ip -o -4 route show to default | awk '{print $5}')
 	echo "[INFO] Docker network interface is \"${nw_interface}\"."
 
-	nw_ip=$(ip -f inet addr show "${nw_interface}" | grep -Po 'inet \K[\d.]+')
+	nw_ip=$(ip -f inet addr show "${nw_interface}" | grep 'inet' | awk '{print $2}')
 	echo "[INFO] Docker network IP is \"${nw_ip}\"."
 
 	nw_cidr=$(ip -o -f inet addr show "${nw_interface}" | awk '/scope global/ {print $4}')
