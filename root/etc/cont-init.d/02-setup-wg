@@ -95,32 +95,32 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 	ip route
 
 	echo "[INFO] Configuring iptables..."
-	iptables -P FORWARD DROP
+	iptables-legacy -P FORWARD DROP
 
-	iptables -P INPUT DROP
-	iptables -A INPUT -i "${VPN_CONF}" -p udp -j ACCEPT
-	iptables -A INPUT -i "${VPN_CONF}" -p tcp -j ACCEPT
-	iptables -A INPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
-	iptables -A INPUT -i "${nw_interface}" -p udp --sport "${vpn_port}" -j ACCEPT
-	iptables -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
-	iptables -A INPUT -i lo -j ACCEPT
+	iptables-legacy -P INPUT DROP
+	iptables-legacy -A INPUT -i "${VPN_CONF}" -p udp -j ACCEPT
+	iptables-legacy -A INPUT -i "${VPN_CONF}" -p tcp -j ACCEPT
+	iptables-legacy -A INPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
+	iptables-legacy -A INPUT -i "${nw_interface}" -p udp --sport "${vpn_port}" -j ACCEPT
+	iptables-legacy -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
+	iptables-legacy -A INPUT -i lo -j ACCEPT
 	IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 	for additional_port in "${additional_ports[@]}"; do
-		iptables -A INPUT -i "${nw_interface}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j ACCEPT
-		iptables -I INPUT -i "${VPN_CONF}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j DROP
+		iptables-legacy -A INPUT -i "${nw_interface}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j ACCEPT
+		iptables-legacy -I INPUT -i "${VPN_CONF}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j DROP
 	done
 
-	iptables -P OUTPUT DROP
-	iptables -A OUTPUT -o "${VPN_CONF}" -p udp -j ACCEPT
-	iptables -A OUTPUT -o "${VPN_CONF}" -p tcp -j ACCEPT
-	iptables -A OUTPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
-	iptables -A OUTPUT -o "${nw_interface}" -p udp --dport "${vpn_port}" -j ACCEPT
-	iptables -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT
-	iptables -A OUTPUT -o lo -j ACCEPT
+	iptables-legacy -P OUTPUT DROP
+	iptables-legacy -A OUTPUT -o "${VPN_CONF}" -p udp -j ACCEPT
+	iptables-legacy -A OUTPUT -o "${VPN_CONF}" -p tcp -j ACCEPT
+	iptables-legacy -A OUTPUT -s "${nw_cidr}" -d "${nw_cidr}" -j ACCEPT
+	iptables-legacy -A OUTPUT -o "${nw_interface}" -p udp --dport "${vpn_port}" -j ACCEPT
+	iptables-legacy -A OUTPUT -p icmp --icmp-type echo-request -j ACCEPT
+	iptables-legacy -A OUTPUT -o lo -j ACCEPT
 	IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 	for additional_port in "${additional_ports[@]}"; do
-		iptables -A OUTPUT -o "${nw_interface}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j ACCEPT
-		iptables -I OUTPUT -o "${VPN_CONF}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j DROP
+		iptables-legacy -A OUTPUT -o "${nw_interface}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j ACCEPT
+		iptables-legacy -I OUTPUT -o "${VPN_CONF}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j DROP
 	done
 
 	unset ipv6_wanted
@@ -132,30 +132,30 @@ if [[ ${VPN_ENABLED} == "true" ]]; then
 
 	if [[ ${ipv6_wanted} == "true" ]]; then
 		echo "[INFO] Configuring ip6tables..."
-		ip6tables -P FORWARD DROP 1>&- 2>&-
+		ip6tables-legacy -P FORWARD DROP 1>&- 2>&-
 
-		ip6tables -P INPUT DROP 1>&- 2>&-
-		ip6tables -A INPUT -i "${VPN_CONF}" -p udp -j ACCEPT
-		ip6tables -A INPUT -i "${VPN_CONF}" -p tcp -j ACCEPT
+		ip6tables-legacy -P INPUT DROP 1>&- 2>&-
+		ip6tables-legacy -A INPUT -i "${VPN_CONF}" -p udp -j ACCEPT
+		ip6tables-legacy -A INPUT -i "${VPN_CONF}" -p tcp -j ACCEPT
 		IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 		for additional_port in "${additional_ports[@]}"; do
-			ip6tables -I INPUT -i "${VPN_CONF}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j DROP
+			ip6tables-legacy -I INPUT -i "${VPN_CONF}" -p "${additional_port##*/}" --dport "${additional_port%/*}" -j DROP
 		done
 
-		ip6tables -P OUTPUT DROP 1>&- 2>&-
-		ip6tables -A OUTPUT -o "${VPN_CONF}" -p udp -j ACCEPT
-		ip6tables -A OUTPUT -o "${VPN_CONF}" -p tcp -j ACCEPT
+		ip6tables-legacy -P OUTPUT DROP 1>&- 2>&-
+		ip6tables-legacy -A OUTPUT -o "${VPN_CONF}" -p udp -j ACCEPT
+		ip6tables-legacy -A OUTPUT -o "${VPN_CONF}" -p tcp -j ACCEPT
 		IFS=',' read -ra additional_ports <<< "${VPN_ADDITIONAL_PORTS}"
 		for additional_port in "${additional_ports[@]}"; do
-			ip6tables -I OUTPUT -o "${VPN_CONF}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j DROP
+			ip6tables-legacy -I OUTPUT -o "${VPN_CONF}" -p "${additional_port##*/}" --sport "${additional_port%/*}" -j DROP
 		done
 	fi
 
 	echo "[INFO] iptables overview:"
-	iptables -S
+	iptables-legacy -S
 	if [[ ${ipv6_wanted} == "true" ]]; then
 		echo "[INFO] ip6tables overview:"
-		ip6tables -S
+		ip6tables-legacy -S
 	fi
 
 	set +e
