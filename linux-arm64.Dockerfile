@@ -9,7 +9,7 @@ VOLUME ["${CONFIG_DIR}"]
 
 RUN ln -s "${CONFIG_DIR}" "${APP_DIR}/qBittorrent"
 
-RUN apk add --no-cache privoxy iptables iproute2 openresolv wireguard-tools ipcalc && \
+RUN apk add --no-cache privoxy iptables ip6tables iproute2 openresolv wireguard-tools ipcalc && \
     apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing wireguard-go
 
 ARG FULL_VERSION
