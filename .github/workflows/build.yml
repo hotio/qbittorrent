@@ -5,7 +5,7 @@ on: push
 jobs:
 
   check:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -18,7 +18,7 @@ jobs:
           done
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         architecture: [linux-arm64, linux-amd64]
@@ -208,7 +208,7 @@ jobs:
           delay: 5
 
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         registry: [docker.io, ghcr.io]
@@ -294,7 +294,7 @@ jobs:
           fi
 
   notify:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: always()
     needs: [build, publish]
     steps:
