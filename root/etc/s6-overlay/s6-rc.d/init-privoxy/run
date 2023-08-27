@@ -1,0 +1,11 @@
+#!/command/with-contenv bash
+# shellcheck shell=bash
+
+umask "${UMASK}"
+
+if [[ ! -f "${CONFIG_DIR}/privoxy/privoxy.conf" ]] && [[ "${PRIVOXY_ENABLED}" == true ]]; then
+	echo "Installing default \"privoxy.conf\"..."
+	mkdir -p "${CONFIG_DIR}/privoxy"
+	cp "${APP_DIR}/privoxy.conf" "${CONFIG_DIR}/privoxy/privoxy.conf"
+	chown hotio:hotio -R "${CONFIG_DIR}/privoxy"
+fi

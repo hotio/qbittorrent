@@ -1,0 +1,19 @@
+#!/command/with-contenv bash
+# shellcheck shell=bash
+
+find /var/run/s6/container_environment/ -type f -name 'FILE__*' -print0 | while IFS= read -r -d '' FILENAME; do
+    NEW_VAR=${FILENAME//FILE__/}
+    SECRET_FILE=$(cat "${FILENAME}")
+    if [[ ! -f ${SECRET_FILE} ]]; then
+        echo "[${NEW_VAR##*/}] The file \"${SECRET_FILE}\" wasn't found!"
+        exit 1
+    fi
+    SECRET=$(cat "${SECRET_FILE}")
+    if [[ -n ${SECRET} ]]; then
+        echo -n "${SECRET}" > "${NEW_VAR}"
+        echo "[${NEW_VAR##*/}] Set with secret from \"${SECRET_FILE}\"."
+    else
+        echo "[${NEW_VAR##*/}] No secret found in \"${SECRET_FILE}\"!"
+        exit 1
+    fi
+done

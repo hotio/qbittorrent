@@ -36,3 +36,10 @@ fi
 echo "Applying permissions to ${CONFIG_DIR}"
 chmod "=rwx" "${CONFIG_DIR}"
 chown hotio:hotio "${CONFIG_DIR}"
+
+if [[ ! -f "${CONFIG_DIR}/config/qBittorrent.conf" ]]; then
+    echo "Installing default \"qBittorrent.conf\"..."
+    mkdir -p "${CONFIG_DIR}/config"
+    cp "${APP_DIR}/qBittorrent.conf" "${CONFIG_DIR}/config/qBittorrent.conf"
+    chown hotio:hotio -R "${CONFIG_DIR}/config"
+fi

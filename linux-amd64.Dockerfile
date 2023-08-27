@@ -3,7 +3,7 @@ ARG UPSTREAM_DIGEST_AMD64
 
 FROM ${UPSTREAM_IMAGE}@${UPSTREAM_DIGEST_AMD64}
 EXPOSE 8080
-ENV VPN_ENABLED="false" VPN_LAN_NETWORK="" VPN_CONF="wg0" VPN_ADDITIONAL_PORTS="" WEBUI_PORTS="8080/tcp,8080/udp" PRIVOXY_ENABLED="false" S6_SERVICES_GRACETIME=180000
+ENV VPN_ENABLED="false" VPN_LAN_NETWORK="" VPN_CONF="wg0" VPN_ADDITIONAL_PORTS="" WEBUI_PORTS="8080/tcp,8080/udp" PRIVOXY_ENABLED="false" S6_SERVICES_GRACETIME=180000 S6_STAGE2_HOOK="/init-hook"
 
 VOLUME ["${CONFIG_DIR}"]
 
@@ -24,4 +24,4 @@ RUN curl -fsSL "https://github.com/wdaan/vuetorrent/releases/download/v${VUETORR
     chmod -R u=rwX,go=rX "${APP_DIR}/vuetorrent"
 
 COPY root/ /
-RUN chmod -R +x /etc/cont-init.d/ /etc/services.d/ /etc/cont-finish.d/
+RUN chmod +x /init-hook
