@@ -75,7 +75,6 @@ jobs:
           echo "vendor=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
           echo "url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/master/README.md" >> $GITHUB_OUTPUT
           echo "platform=${ARCHITECTURE//-/\/}" >> $GITHUB_OUTPUT
-          echo "cache=${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-cache-${{ matrix.architecture }}" >> $GITHUB_OUTPUT
           echo "tag=${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7}-${GITHUB_RUN_NUMBER}-${{ matrix.architecture }}" >> $GITHUB_OUTPUT
           VERSION=$(jq -r '.version // empty' < VERSION.json)
           if [[ -z ${VERSION} ]]; then
@@ -100,8 +99,8 @@ jobs:
           push: true
           platforms: ${{ steps.prep.outputs.platform }}
           file: ./${{ matrix.architecture }}.Dockerfile
-          cache-from: docker.io/${{ steps.prep.outputs.cache }}
-          cache-to: docker.io/${{ steps.prep.outputs.cache }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             docker.io/${{ steps.prep.outputs.tag }}
             ghcr.io/${{ steps.prep.outputs.tag }}
@@ -131,8 +130,8 @@ jobs:
           push: true
           platforms: ${{ steps.prep.outputs.platform }}
           file: ./${{ matrix.architecture }}.Dockerfile
-          cache-from: docker.io/${{ steps.prep.outputs.cache }}
-          cache-to: docker.io/${{ steps.prep.outputs.cache }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             docker.io/${{ steps.prep.outputs.tag }}
             ghcr.io/${{ steps.prep.outputs.tag }}
