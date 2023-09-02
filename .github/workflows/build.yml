@@ -61,7 +61,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.PERSONAL_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare
         if: "contains(steps.arch_check.outputs.check, 'passed')"
@@ -113,7 +113,7 @@ jobs:
             org.opencontainers.image.url=${{ steps.prep.outputs.url }}
             org.opencontainers.image.version=${{ steps.prep.outputs.version }}
           build-args: |
-            GITHUB_TOKEN=${{ secrets.PERSONAL_TOKEN }}
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             BUILD_ARCHITECTURE=${{ matrix.architecture }}
             PACKAGE_VERSION=${{ steps.prep.outputs.package-version }}
             ${{ steps.prep.outputs.build-args }}
@@ -144,7 +144,7 @@ jobs:
             org.opencontainers.image.url=${{ steps.prep.outputs.url }}
             org.opencontainers.image.version=${{ steps.prep.outputs.version }}
           build-args: |
-            GITHUB_TOKEN=${{ secrets.PERSONAL_TOKEN }}
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
             BUILD_ARCHITECTURE=${{ matrix.architecture }}
             PACKAGE_VERSION=${{ steps.prep.outputs.package-version }}
             ${{ steps.prep.outputs.build-args }}
@@ -230,7 +230,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.PERSONAL_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create manifests - Attempt 1
         continue-on-error: true
@@ -318,7 +318,7 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           EXTRA_DISCORD_WEBHOOK: ${{ secrets.EXTRA_DISCORD_WEBHOOK }}
           GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.build.outputs.version }}
           BRANCH: ${{ needs.build.outputs.branch }}
           STATUS: ${{ needs.publish.result }}
