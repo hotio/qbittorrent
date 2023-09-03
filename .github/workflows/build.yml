@@ -1,6 +1,8 @@
 name: build
 
-on: push
+on:
+  workflow_dispatch:
+  push:
 
 jobs:
 
@@ -12,7 +14,7 @@ jobs:
 
       - name: Shellcheck
         run: |
-          for file in $(find ./root/etc -type f -name "run"); do
+          for file in $(find ./root/etc -type f -name "run*"); do
             echo "Checking: $file"
             shellcheck "$file"
           done
