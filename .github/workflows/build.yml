@@ -320,8 +320,8 @@ jobs:
           if [[ ${CHANGELOG} != null ]]; then
             VERSION="[${VERSION:----}](${CHANGELOG})"
           fi
-          if [[ ! -f "screenshot.png" ]]; then
-            curl -fsSL --retry 5 "https://hotio.dev/img/pullio-background.png" > screenshot.png
+          if [[ -f "screenshot.png" ]]; then
+            IMAGE_JSON=',"image": {"url": "attachment://screenshot.png"}'
           fi
           json='{
             "embeds": [
@@ -348,11 +348,12 @@ jobs:
                 "footer": {
                   "text": "Powered by GitHub Actions"
                 },
-                "timestamp": "'$(date -u +'%FT%T.%3NZ')'",
-                "image": {
-                  "url": "attachment://screenshot.png"
-                }
+                "timestamp": "'$(date -u +'%FT%T.%3NZ')'"'"${IMAGE_JSON}"'
               }
             ]
           }'
-          curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
+          if [[ -f "screenshot.png" ]]; then
+            curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
+          else
+            curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
+          fi
