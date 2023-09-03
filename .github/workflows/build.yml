@@ -26,6 +26,8 @@ jobs:
     outputs:
       version: ${{ steps.prep.outputs.version }}
       branch: ${{ steps.prep.outputs.branch }}
+      commit_message: ${{ steps.prep.outputs.commit_message }}
+      changelog: ${{ steps.prep.outputs.changelog }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,11 +38,11 @@ jobs:
           (test -f ${{ matrix.architecture }}.Dockerfile && echo "check=passed" >> $GITHUB_OUTPUT) || echo "check=failed" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        if: contains(steps.arch_check.outputs.check, 'passed')
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        if: contains(steps.arch_check.outputs.check, 'passed')
         uses: docker/setup-buildx-action@v2
         with:
           install: true
@@ -48,7 +50,7 @@ jobs:
           driver-opts: image=moby/buildkit:v0.10.6
 
       - name: Login to docker.io
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        if: contains(steps.arch_check.outputs.check, 'passed')
         uses: docker/login-action@v2
         with:
           registry: docker.io
@@ -56,7 +58,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to ghcr.io
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        if: contains(steps.arch_check.outputs.check, 'passed')
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -64,10 +66,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        if: contains(steps.arch_check.outputs.check, 'passed')
         id: prep
         run: |
           ARCHITECTURE=${{ matrix.architecture }}
+          echo "changelog=$(jq -r '.changelog' < VERSION.json)" >> $GITHUB_OUTPUT
+          echo "commit_message=${{ github.event.head_commit.message }}" >> $GITHUB_OUTPUT
           echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
           echo "title=${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}" >> $GITHUB_OUTPUT
           echo "revision=${GITHUB_SHA}" >> $GITHUB_OUTPUT
@@ -92,7 +96,7 @@ jobs:
 
       - name: Build and push - Attempt 1
         continue-on-error: true
-        if: "contains(steps.arch_check.outputs.check, 'passed')"
+        if: contains(steps.arch_check.outputs.check, 'passed')
         id: build_attempt1
         uses: docker/build-push-action@v4
         with:
@@ -150,16 +154,15 @@ jobs:
             ${{ steps.prep.outputs.build-args }}
 
       - name: Show installed packages
-        if: |
-          contains(steps.arch_check.outputs.check, 'passed')
+        if: contains(steps.arch_check.outputs.check, 'passed')
         run: |
           version_json=$(cat ./VERSION.json)
           upstream_tag=$(jq -r '.upstream_tag' <<< "${version_json}")
           upstream_image=$(jq -r '.upstream_image' <<< "${version_json}")
           if [[ ${upstream_tag} == alpine || ${upstream_image} == alpine ]]; then
-            docker run --rm --entrypoint="" "docker.io/${{ steps.prep.outputs.tag }}" apk -vv info | sort
+            docker run --rm --entrypoint="" "ghcr.io/${{ steps.prep.outputs.tag }}" apk -vv info | sort
           else
-            docker run --rm --entrypoint="" "docker.io/${{ steps.prep.outputs.tag }}" apt list --installed
+            docker run --rm --entrypoint="" "ghcr.io/${{ steps.prep.outputs.tag }}" apt list --installed
           fi
 
       - name: Prepare for test
@@ -184,7 +187,7 @@ jobs:
           contains(matrix.architecture, 'amd64')
         run: |
           test_url=${{ steps.prep_test.outputs.url }}
-          docker run --network host -d --name service "docker.io/${{ steps.prep.outputs.tag }}"
+          docker run --network host -d --name service "ghcr.io/${{ steps.prep.outputs.tag }}"
           currenttime=$(date +%s); maxtime=$((currenttime+120)); while (! curl -fsSL -m 10 -b /dev/shm/cookie "${test_url}" > /dev/null) && [[ "$currenttime" -lt "$maxtime" ]]; do sleep 1; currenttime=$(date +%s); done
           if curl -fsSL -m 10 -b /dev/shm/cookie "${test_url}" > /dev/null; then
             docker logs service
@@ -297,38 +300,23 @@ jobs:
     if: always()
     needs: [build, publish]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: Download screenshot
         continue-on-error: true
         uses: actions/download-artifact@v3
         with:
           name: screenshot
 
-      - name: Login to docker.io
-        uses: docker/login-action@v2
-        with:
-          registry: docker.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Send discord notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          EXTRA_DISCORD_WEBHOOK: ${{ secrets.EXTRA_DISCORD_WEBHOOK }}
-          GITHUB_OWNER: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.build.outputs.version }}
           BRANCH: ${{ needs.build.outputs.branch }}
+          COMMIT_MESSAGE: ${{ needs.build.outputs.commit_message }}
+          CHANGELOG: ${{ needs.build.outputs.changelog }}
           STATUS: ${{ needs.publish.result }}
         shell: bash
         run: |
-          export DOCKER_CLI_EXPERIMENTAL=enabled
-          [[ "${STATUS}" == "success" ]] && DIGESTS=$(docker manifest inspect docker.io/${GITHUB_REPOSITORY}:${GITHUB_REF//refs\/heads\//}-${GITHUB_SHA:0:7} | jq -r '.manifests[]  | "\(.digest | .[7:19]) \(.platform.os)/\(.platform.architecture)\(.platform.variant // "")"')
-          COMMIT_MESSAGE="$(curl -u "${GITHUB_OWNER}:${GITHUB_TOKEN}" -fsSL --retry 5 "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}" | jq -r .commit.message | head -1)"
           [[ "${STATUS}" == "success" ]] && COLOR="3066993"
-          CHANGELOG=$(jq -r '.changelog' < VERSION.json)
           if [[ ${CHANGELOG} != null ]]; then
             VERSION="[${VERSION:----}](${CHANGELOG})"
           fi
@@ -355,10 +343,6 @@ jobs:
                     "name": "Version",
                     "value": "'${VERSION:----}'",
                     "inline": true
-                  },
-                  {
-                    "name": "Digests",
-                    "value": "```'"$(echo "${DIGESTS:----}" | tr '\n' '#' | sed 's/#/\\n/g')"'```"
                   }
                 ],
                 "footer": {
@@ -372,6 +356,3 @@ jobs:
             ]
           }'
           curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${DISCORD_WEBHOOK}" > /dev/null
-          if [[ -n ${EXTRA_DISCORD_WEBHOOK} ]]; then
-            curl -fsSL --retry 5 -H "Content-Type: multipart/form-data" -F "file=@screenshot.png" -F "payload_json=${json}" "${EXTRA_DISCORD_WEBHOOK}" > /dev/null
-          fi
