@@ -53,7 +53,7 @@ jobs:
         with:
           registry: docker.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to ghcr.io
         if: "contains(steps.arch_check.outputs.check, 'passed')"
@@ -222,7 +222,7 @@ jobs:
         with:
           registry: docker.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to ghcr.io
         if: matrix.registry == 'ghcr.io'
@@ -311,7 +311,7 @@ jobs:
         with:
           registry: docker.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Send discord notification
         env:
