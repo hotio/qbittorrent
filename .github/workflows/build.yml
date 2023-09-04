@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Shellcheck
         run: |
@@ -30,7 +30,7 @@ jobs:
       changelog: ${{ steps.prep.outputs.changelog }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Check if architecture exists
         id: arch_check
@@ -217,7 +217,7 @@ jobs:
     needs: [build]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to docker.io
         if: matrix.registry == 'docker.io'
@@ -300,7 +300,7 @@ jobs:
     needs: [build, publish]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Git Config
         env:
