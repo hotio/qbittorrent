@@ -5,7 +5,7 @@ version_json=$(cat ./VERSION.json)
 upstream_image=$(jq -r '.upstream_image' <<< "${version_json}")
 upstream_tag=$(jq -r '.upstream_tag' <<< "${version_json}")
 if [[ ${upstream_image} == null || ${upstream_tag} == null ]]; then
-    jq '.upstream_image = "'"cr.hotio.dev/hotio/base"'" | .upstream_tag = "'"alpine"'"' <<< "${version_json}" > VERSION.json
+    jq '.upstream_image = "'"ghcr.io/hotio/base"'" | .upstream_tag = "'"alpine"'"' <<< "${version_json}" > VERSION.json
     exit 0
 fi
 manifest=$(skopeo inspect --raw "docker://${upstream_image}:${upstream_tag}")
