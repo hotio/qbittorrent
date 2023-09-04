@@ -1,0 +1,12 @@
+name: call-build-on-failure
+
+on:
+  workflow_run:
+    workflows: [call-build]
+    types: [completed]
+
+jobs:
+  call:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    uses: hotio/build-workflow/.github/workflows/build-on-call.yml@master
+    secrets: inherit
