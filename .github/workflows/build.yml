@@ -299,9 +299,6 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [build, publish]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Git Config
         env:
           GITHUB_OWNER: ${{ github.repository_owner }}
@@ -309,18 +306,29 @@ jobs:
           git config --global user.email "${GITHUB_OWNER}@users.noreply.github.com"
           git config --global user.name "${GITHUB_OWNER}"
 
-      - name: Update TAGS.json
+      - name: Update tags .json file
+        uses: nick-fields/retry@v2
         env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+          REPO: ${{ github.repository }}
           VERSION: ${{ needs.build.outputs.version }}
           BRANCH: ${{ needs.build.outputs.branch }}
-        run: |
-          TAGS="${GITHUB_REF//refs\/heads\//}${BRANCH},${GITHUB_REF//refs\/heads\//}${BRANCH}-${VERSION},${GITHUB_REF//refs\/heads\//}${BRANCH}-${GITHUB_SHA:0:7}"
-          LAST_UPDATED=$(date -u +'%FT%T.%3NZ')
-          jq -n --arg last_updated "${LAST_UPDATED}" --arg tags "${TAGS}" '{ last_updated: $last_updated, tags: $tags | split(",") }' > TAGS.json
-          git add .
-          if git commit -m "Update TAGS.json [skip ci]"; then
-            git push
-          fi
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout_seconds: 20
+          command: |
+            TAGS="${GITHUB_REF//refs\/heads\//}${BRANCH},${GITHUB_REF//refs\/heads\//}${BRANCH}-${VERSION},${GITHUB_REF//refs\/heads\//}${BRANCH}-${GITHUB_SHA:0:7}"
+            LAST_UPDATED=$(date -u +'%FT%T.%3NZ')
+            git clone -b "master" "https://${GITHUB_TOKEN}@github.com/${REPO}.git" masterGit
+            cd "${GITHUB_WORKSPACE}/masterGit" || exit 1
+            jq -n --arg last_updated "${LAST_UPDATED}" --arg tags "${TAGS}" '{ last_updated: $last_updated, tags: $tags | split(",") }' > tags-${GITHUB_REF//refs\/heads\//}.json
+            git add .
+            if git commit -m "Update tags .json file [skip ci]"; then
+              git push
+            fi
+            cd "${GITHUB_WORKSPACE}" || exit 1
+            rm -rf "${GITHUB_WORKSPACE:?}/masterGit"
 
   notify:
     runs-on: ubuntu-22.04
