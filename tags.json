@@ -8,5 +8,15 @@
       "legacy-4.3.9",
       "legacy-76e9d90"
     ]
+  },
+  "release": {
+    "description": "Releases",
+    "last_updated": "2023-09-08T06:21:29.151Z",
+    "latest": true,
+    "tags": [
+      "release",
+      "release-4.5.5",
+      "release-333e0d6"
+    ]
   }
 }
