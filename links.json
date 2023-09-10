@@ -1,0 +1,12 @@
+{
+"links": [
+    {
+        "name": "Upstream Project 1",
+        "url": "https://github.com/qbittorrent/qbittorrent"
+    },
+    {
+        "name": "Upstream Project 2",
+        "url": "https://github.com/WDaan/VueTorrent"
+    }
+]
+}
