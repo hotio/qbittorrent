@@ -3,7 +3,7 @@
   "description": "Releases",
   "version": "4.6.2",
   "full_version": "release-4.6.2_v1.2.19",
-  "vuetorrent_version": "2.3.0",
+  "vuetorrent_version": "2.4.0",
   "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.6.1...release-4.6.2",
   "upstream_image": "ghcr.io/hotio/base",
   "upstream_tag": "alpine",
