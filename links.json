@@ -7,6 +7,10 @@
     {
         "name": "Upstream Project 2",
         "url": "https://github.com/WDaan/VueTorrent"
+    },
+    {
+        "name": "Upstream Project 3",
+        "url": "https://github.com/CallMeBruce/nightwalker"
     }
 ]
 }
