@@ -9,5 +9,6 @@
   "upstream_tag": "alpine",
   "upstream_digest_amd64": "sha256:aba1ad70d73a01a04940ceefcc0506c8867aa99be1e1598f7f57d79dc462ba1d",
   "upstream_digest_arm64": "sha256:5f44dcee2c34486af761dca45b1a7b57ef953ee485050544c2255c6f21ed0278",
-  "test_url": "http://localhost:8080"
+  "test_url": "http://localhost:8080",
+  "nightwalker_version": "2301b1cc436d802abe1e2cb6f132dff12e40157b"
 }

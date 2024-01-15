@@ -23,5 +23,10 @@ RUN curl -fsSL "https://github.com/wdaan/vuetorrent/releases/download/v${VUETORR
     rm "/tmp/vuetorrent.zip" && \
     chmod -R u=rwX,go=rX "${APP_DIR}/vuetorrent"
 
+ARG NIGHTWALKER_VERSION
+RUN mkdir "${APP_DIR}/nightwalker" && \
+    wget -O - "https://github.com/CallMeBruce/nightwalker/archive/${NIGHTWALKER_VERSION}.tar.gz" | tar xzf - -C "${APP_DIR}/nightwalker" --strip-components=1 && \
+    chmod -R u=rwX,go=rX "${APP_DIR}/nightwalker"
+
 COPY root/ /
 RUN chmod +x /init-hook
