@@ -1,16 +1,8 @@
 {
 "links": [
     {
-        "name": "Upstream Project 1",
+        "name": "Upstream Project",
         "url": "https://github.com/qbittorrent/qbittorrent"
-    },
-    {
-        "name": "Upstream Project 2",
-        "url": "https://github.com/WDaan/VueTorrent"
-    },
-    {
-        "name": "Upstream Project 3",
-        "url": "https://github.com/CallMeBruce/nightwalker"
     }
 ]
 }
