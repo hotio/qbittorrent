@@ -18,7 +18,7 @@ RUN curl -fsSL "https://github.com/userdocs/qbittorrent-nox-static/releases/down
     chmod 755 "${APP_DIR}/qbittorrent-nox"
 
 ARG VUETORRENT_VERSION
-RUN curl -fsSL "https://github.com/wdaan/vuetorrent/releases/download/v${VUETORRENT_VERSION}/vuetorrent.zip" > "/tmp/vuetorrent.zip" && \
+RUN curl -fsSL "https://github.com/vuetorrent/vuetorrent/releases/download/v${VUETORRENT_VERSION}/vuetorrent.zip" > "/tmp/vuetorrent.zip" && \
     unzip "/tmp/vuetorrent.zip" -d "${APP_DIR}" && \
     rm "/tmp/vuetorrent.zip" && \
     chmod -R u=rwX,go=rX "${APP_DIR}/vuetorrent"

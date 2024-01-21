@@ -2,7 +2,7 @@
 
 nightwalker_version=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/CallMeBruce/nightwalker/commits/main" | jq -r .sha)
 [[ -z ${nightwalker_version} ]] && exit 0
-vuetorrent_version=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/wdaan/vuetorrent/releases/latest" | jq -r .tag_name | sed s/v//g)
+vuetorrent_version=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://api.github.com/repos/vuetorrent/vuetorrent/releases/latest" | jq -r .tag_name | sed s/v//g)
 [[ -z ${vuetorrent_version} ]] && exit 0
 full_version=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json" | jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"')
 version=$(echo "${full_version}" | sed -e "s/release-//g" -e "s/_.*//g")
