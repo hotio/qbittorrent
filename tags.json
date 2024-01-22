@@ -9,16 +9,6 @@
       "legacy-586f0f6"
     ]
   },
-  "proton": {
-    "description": "Releases",
-    "last_updated": "2024-01-22T07:51:47.250Z",
-    "latest": false,
-    "tags": [
-      "proton",
-      "proton-4.6.3",
-      "proton-6c6d77e"
-    ]
-  },
   "release": {
     "description": "Releases",
     "last_updated": "2024-01-22T08:03:49.953Z",
