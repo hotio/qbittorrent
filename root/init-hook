@@ -4,3 +4,7 @@
 if [[ "${PRIVOXY_ENABLED}" != true ]]; then
     rm -rf /etc/s6-overlay/s6-rc.d/user/contents.d/service-privoxy
 fi
+
+if [[ "${VPN_PROVIDER}" != "proton" ]] || [[ "${VPN_ENABLED}" != true ]]; then
+    rm -rf /etc/s6-overlay/s6-rc.d/user/contents.d/service-proton
+fi
