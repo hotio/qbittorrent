@@ -11,12 +11,12 @@
   },
   "proton": {
     "description": "Releases",
-    "last_updated": "2024-01-22T04:53:47.956Z",
+    "last_updated": "2024-01-22T06:00:46.620Z",
     "latest": false,
     "tags": [
       "proton",
       "proton-4.6.3",
-      "proton-f102a8a"
+      "proton-224db59"
     ]
   },
   "release": {
