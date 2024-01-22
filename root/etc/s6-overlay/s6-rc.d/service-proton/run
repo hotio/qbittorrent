@@ -3,7 +3,7 @@
 
 umask "${UMASK}"
 
-vpn_remote=$(grep -P -o -m 1 '(?<=^Endpoint)(\s{0,})[^\n\r]+' < "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"| sed -e 's~^[=\ ]*~~')
+vpn_remote=$(grep -P -o -m 1 '(?<=^Endpoint)(\s{0,})[^:]+' < "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"| sed -e 's~^[=\ ]*~~')
 
 while true; do
     if ! natpmpc -g "${vpn_remote}"; then
