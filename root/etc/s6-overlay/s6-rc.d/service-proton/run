@@ -3,15 +3,15 @@
 
 umask "${UMASK}"
 
-vpn_remote=$(grep -P -o -m 1 '(?<=^Endpoint)(\s{0,})[^:]+' < "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"| sed -e 's~^[=\ ]*~~')
+vpn_gw=$(grep -P -o -m 1 '(?<=^Address)(\s{0,})[^/]+' < "${CONFIG_DIR}/wireguard/${VPN_CONF}.conf"| sed -e 's~^[=\ ]*~~')
 
 while true; do
-    if ! natpmpc -g "${vpn_remote}"; then
-        echo "[WARNING] ProtonVPN endpoint \"${vpn_remote}\" does not support port forwarding!"
+    if ! natpmpc -g "${vpn_gw%.*}.1" &> /dev/null; then
+        echo "[WARNING] ProtonVPN endpoint \"${vpn_gw%.*}.1\" does not support port forwarding!"
     else
-        port=$(natpmpc -g "${vpn_remote}" -a 1 0 udp 60 | grep -P -o -m 1 '(?<=Mapped public port\s)\d+')
+        port=$(natpmpc -g "${vpn_gw%.*}.1" -a 1 0 udp 60 | grep -P -o -m 1 '(?<=Mapped public port\s)\d+')
         if [[ -n "${port}" ]]; then
-            natpmpc -g "${vpn_remote}" -a 1 0 tcp 60
+            natpmpc -g "${vpn_gw%.*}.1" -a 1 0 tcp 60 &> /dev/null
             webui_https="http"
             if grep -q 'WebUI\\HTTPS\\Enabled=true' "${CONFIG_DIR}/config/qBittorrent.conf"; then
                 webui_https="https"
