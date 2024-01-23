@@ -1,4 +1,0 @@
-#!/command/with-contenv bash
-# shellcheck shell=bash
-
-rm -rf "${CONFIG_DIR}/forwarded_port"
