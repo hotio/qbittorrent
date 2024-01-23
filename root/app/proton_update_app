@@ -1,4 +1,7 @@
 # shellcheck shell=bash
+until pidof qbittorrent-nox > /dev/null; do   
+    sleep 1
+done
 webui_https="http"
 if grep -q 'WebUI\\HTTPS\\Enabled=true' "${CONFIG_DIR}/config/qBittorrent.conf"; then
     webui_https="https"
