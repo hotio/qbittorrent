@@ -17,13 +17,8 @@ while true; do
             old_port=$(cat "${CONFIG_DIR}/forwarded_port")
             if [[ "${port}" != "${old_port}" ]]; then
                 echo "${port}" > "${CONFIG_DIR}/forwarded_port"
-                webui_https="http"
-                if grep -q 'WebUI\\HTTPS\\Enabled=true' "${CONFIG_DIR}/config/qBittorrent.conf"; then
-                    webui_https="https"
-                fi
-                curl -fsSL --insecure -X POST -d "json={\"upnp\": false}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"
-                curl -fsSL --insecure -X POST -d "json={\"random_port\": false}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"
-                curl -fsSL --insecure -X POST -d "json={\"listen_port\": ${port}}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"
+                # shellcheck source=/dev/null
+                source "${APP_DIR}/proton_update_app"
             fi
             echo "[INFO] [$(date '+%Y-%m-%d %H:%M:%S')] ProtonVPN forwarded port is \"${port}\"."
         else
