@@ -1,12 +1,12 @@
 {
   "legacy": {
     "description": "Fixed to v4.3.9",
-    "last_updated": "2024-01-23T09:22:33.204Z",
+    "last_updated": "2024-01-24T08:21:44.739Z",
     "latest": false,
     "tags": [
       "legacy",
       "legacy-4.3.9",
-      "legacy-5fdc014"
+      "legacy-2f44190"
     ]
   },
   "release": {
