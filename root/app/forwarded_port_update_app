@@ -2,6 +2,7 @@
 until pidof qbittorrent-nox > /dev/null; do   
     sleep 1
 done
+port=$(cat "${CONFIG_DIR}/wireguard/forwarded_port")
 webui_https="http"
 if grep -q 'WebUI\\HTTPS\\Enabled=true' "${CONFIG_DIR}/config/qBittorrent.conf"; then
     webui_https="https"
