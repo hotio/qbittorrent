@@ -8,9 +8,7 @@ if grep -q 'WebUI\\HTTPS\\Enabled=true' "${CONFIG_DIR}/config/qBittorrent.conf";
     webui_https="https"
 fi
 if grep -q 'WebUI\\LocalHostAuth=false' "${CONFIG_DIR}/config/qBittorrent.conf"; then
-    curl -fsSL --insecure -X POST -d "json={\"upnp\": false}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"
-    curl -fsSL --insecure -X POST -d "json={\"random_port\": false}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"
-    curl -fsSL --insecure -X POST -d "json={\"listen_port\": ${port}}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"
+    curl -fsSL --insecure -X POST -d "json={\"web_ui_upnp\":false,\"upnp\":false,\"random_port\":false,\"listen_port\":${port}}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"
 else
     echo "[WARNING] [$(date '+%Y-%m-%d %H:%M:%S')] Unable to set forwarded port in qBittorrent, \"LocalHostAuth\" is enabled!"
 fi
