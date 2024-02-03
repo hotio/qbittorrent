@@ -11,6 +11,8 @@ if grep -q 'WebUI\\LocalHostAuth=false' "${CONFIG_DIR}/config/qBittorrent.conf";
     if ! curl -fsSL --retry 5 --retry-max-time 60 --insecure -X POST -d "json={\"web_ui_upnp\":false,\"upnp\":false,\"random_port\":false,\"listen_port\":${port}}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"; then
         echo "[ERROR] [$(date '+%Y-%m-%d %H:%M:%S')] Unable to set forwarded port in qBittorrent, something is wrong!"
         rm -rf "${CONFIG_DIR}/wireguard/forwarded_port"
+    else
+        echo "[INFO] [$(date '+%Y-%m-%d %H:%M:%S')] Updated forwarded port in qBittorrent."
     fi
 else
     echo "[WARNING] [$(date '+%Y-%m-%d %H:%M:%S')] Unable to set forwarded port in qBittorrent, \"LocalHostAuth\" is enabled!"
