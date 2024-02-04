@@ -7,8 +7,8 @@
   "changelog": "https://github.com/qbittorrent/qbittorrent/compare/release-4.6.2...release-4.6.3",
   "upstream_image": "ghcr.io/hotio/base",
   "upstream_tag": "alpinevpn",
-  "upstream_digest_amd64": "sha256:7cced5282def64e3b7edfa1d81e1d260451e7b5fa9318c0fb26d74e820b91436",
-  "upstream_digest_arm64": "sha256:1bfbbc0d936e80c90dd125ba80dd72d6dc164acb1c911c13cbe846c237664101",
+  "upstream_digest_amd64": "sha256:cfee33d5f5c24786c2f8913e848513c62b9c0fb06cbb86fb97118718938e7ceb",
+  "upstream_digest_arm64": "sha256:5187c6bc4300e2dab15540733d1e0d1ac8fb8e289472bb5221ff42bc7d38aa2a",
   "test_url": "http://localhost:8080",
   "nightwalker_version": "2301b1cc436d802abe1e2cb6f132dff12e40157b"
 }
