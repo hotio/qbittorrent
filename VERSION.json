@@ -10,5 +10,7 @@
   "upstream_digest_amd64": "sha256:cfee33d5f5c24786c2f8913e848513c62b9c0fb06cbb86fb97118718938e7ceb",
   "upstream_digest_arm64": "sha256:5187c6bc4300e2dab15540733d1e0d1ac8fb8e289472bb5221ff42bc7d38aa2a",
   "test_url": "http://localhost:8080",
+  "test_amd64": true,
+  "test_arm64": true,
   "nightwalker_version": "2301b1cc436d802abe1e2cb6f132dff12e40157b"
 }
