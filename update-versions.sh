@@ -8,6 +8,6 @@ json=$(cat VERSION.json)
 jq --sort-keys \
     --arg version "${version//v/}" \
     --arg full_version "${full_version}" \
-    --arg vuetorrent_version "${vuetorrent_version}" \
-    --arg nightwalker_version "${nightwalker_version}" \
+    --arg vuetorrent_version "${vuetorrent_version//v/}" \
+    --arg nightwalker_version "${nightwalker_version//v/}" \
     '.version = $version | .full_version = $full_version | .vuetorrent_version = $vuetorrent_version | .nightwalker_version = $nightwalker_version' <<< "${json}" | tee VERSION.json
