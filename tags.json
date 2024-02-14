@@ -14,13 +14,13 @@
   "release": {
     "description": "Releases",
     "hide": false,
-    "last_updated": "2024-02-12T10:25:24.000Z",
-    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/7870177724",
+    "last_updated": "2024-02-14T10:24:17.000Z",
+    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/7899584494",
     "latest": true,
     "tags": [
       "release",
       "release-4.6.3",
-      "release-5702c89"
+      "release-33884f5"
     ]
   }
 }
