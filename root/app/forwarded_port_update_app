@@ -2,15 +2,13 @@
 until pidof qbittorrent-nox > /dev/null; do   
     sleep 1
 done
-qbit_port=$(sed -n '1p' "${CONFIG_DIR}/wireguard/forwarded_port")
 webui_https="http"
 if grep -q 'WebUI\\HTTPS\\Enabled=true' "${CONFIG_DIR}/config/qBittorrent.conf"; then
     webui_https="https"
 fi
 if grep -q 'WebUI\\LocalHostAuth=false' "${CONFIG_DIR}/config/qBittorrent.conf"; then
-    if ! curl -fsSL --retry-all-errors --retry-delay 10 --retry 5 --retry-max-time 120 --insecure -X POST -d "json={\"web_ui_upnp\":false,\"upnp\":false,\"random_port\":false,\"listen_port\":${qbit_port}}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"; then
+    if ! curl -fsSL --retry-all-errors --retry-delay 10 --retry 5 --retry-max-time 120 --insecure -X POST -d "json={\"web_ui_upnp\":false,\"upnp\":false,\"random_port\":false,\"listen_port\":${port}}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"; then
         echo "[ERR] [$(date '+%Y-%m-%d %H:%M:%S')] [QBITTORRENT] Unable to set forwarded port, something is wrong!"
-        exit 1
     else
         echo "[INF] [$(date '+%Y-%m-%d %H:%M:%S')] [QBITTORRENT] Updated forwarded port."
     fi
