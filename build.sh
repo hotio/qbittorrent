@@ -7,4 +7,4 @@ if [[ -z ${1} ]]; then
 fi
 
 image=$(basename "$(git rev-parse --show-toplevel)")
-docker build -f "./linux-${1}.Dockerfile" -t "${image}-${1}" $(for i in $(jq -r 'to_entries[] | [(.key | ascii_upcase),.value] | join("=")' < VERSION.json); do out+="--build-arg $i " ; done; echo $out;out="") .
+docker build --platform "linux/${1}" -f "./linux-${1}.Dockerfile" -t "${image}-${1}" $(for i in $(jq -r 'to_entries[] | [(.key | ascii_upcase),.value] | join("=")' < VERSION.json); do out+="--build-arg $i " ; done; echo $out;out="") .
