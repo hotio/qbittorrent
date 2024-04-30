@@ -16,7 +16,4 @@ if [[ ! -f "${CONFIG_DIR}/config/qBittorrent.conf" ]]; then
     mkdir -p "${CONFIG_DIR}/config"
     cp "${APP_DIR}/qBittorrent.conf" "${CONFIG_DIR}/config/qBittorrent.conf"
     find "${CONFIG_DIR}/config" \( ! -user hotio -or ! -group hotio \) -exec chown hotio:hotio {} +
-else
-    sed -i 's#Session\\Interface=.*##' "${CONFIG_DIR}/config/qBittorrent.conf"
-    sed -i 's#Session\\InterfaceName=.*##' "${CONFIG_DIR}/config/qBittorrent.conf"
 fi
