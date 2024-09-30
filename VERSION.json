@@ -1,6 +1,6 @@
 {
   "description": "Releases",
-  "full_version": "release-4.6.7_v1.2.19",
+  "full_version": "release-5.0.0_v1.2.19",
   "latest": true,
   "nightwalker_version": "88e3cb7c6c8003c9022ca27cc26cbb1e2facdf9c",
   "test_amd64": true,
@@ -10,6 +10,6 @@
   "upstream_digest_arm64": "sha256:9e111d951db3639aaa21b6709b6cc374bd8f00f3ee4a1f39bc40b71665959492",
   "upstream_image": "ghcr.io/hotio/base",
   "upstream_tag": "alpinevpn",
-  "version": "4.6.7",
+  "version": "5.0.0",
   "vuetorrent_version": "2.13.1"
 }
