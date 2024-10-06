@@ -11,5 +11,5 @@
   "upstream_image": "ghcr.io/hotio/base",
   "upstream_tag": "alpinevpn",
   "version": "5.0.0",
-  "vuetorrent_version": "2.13.3"
+  "vuetorrent_version": "2.14.0"
 }
