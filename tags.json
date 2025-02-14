@@ -2,13 +2,13 @@
   "legacy": {
     "description": "Fixed to v4.3.9",
     "hide": false,
-    "last_updated": "2025-02-08T13:14:58.000Z",
-    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/13215971608",
+    "last_updated": "2025-02-14T21:32:57.000Z",
+    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/13337673215",
     "latest": false,
     "tags": [
       "legacy",
       "legacy-4.3.9",
-      "legacy-fcad60b"
+      "legacy-6ba4b4a"
     ]
   },
   "release": {
