@@ -2,7 +2,7 @@
   "description": "Fixed to v4.3.9",
   "full_version": "release-4.3.9_v1.2.20",
   "latest": false,
-  "nightwalker_version": "023d27b088b6109c4e5bc47813bae416fec2a20b",
+  "nightwalker_version": "af82d8d8589630a8506c524fd2cb8d4709343be4",
   "test_amd64": true,
   "test_arm64": true,
   "test_url": "http://localhost:8080",
