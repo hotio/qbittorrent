@@ -2,7 +2,6 @@
   "description": "Fixed to v4.3.9",
   "full_version": "release-4.3.9_v1.2.20",
   "latest": false,
-  "nightwalker_version": "af82d8d8589630a8506c524fd2cb8d4709343be4",
   "test_amd64": true,
   "test_arm64": true,
   "test_url": "http://localhost:8080",
@@ -10,6 +9,5 @@
   "upstream_digest_arm64": "sha256:cdb91f39e2757028faa00ef45fbfcd095bb210b8550cc78cd5f146cf649c4c26",
   "upstream_image": "ghcr.io/hotio/base",
   "upstream_tag": "alpinevpn",
-  "version": "4.3.9",
-  "vuetorrent_version": "2.24.1"
+  "version": "4.3.9"
 }

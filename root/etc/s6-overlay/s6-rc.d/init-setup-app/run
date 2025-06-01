@@ -17,14 +17,3 @@ if [[ ! -f "${CONFIG_DIR}/config/qBittorrent.conf" ]]; then
     cp "${APP_DIR}/qBittorrent.conf" "${CONFIG_DIR}/config/qBittorrent.conf"
     find "${CONFIG_DIR}/config" \( ! -user hotio -or ! -group hotio \) -exec chown hotio:hotio {} +
 fi
-
-if grep -q 'WebUI\\AlternativeUIEnabled=true' "${CONFIG_DIR}/config/qBittorrent.conf"; then
-    if grep -q 'WebUI\\RootFolder=/app/nightwalker' "${CONFIG_DIR}/config/qBittorrent.conf"; then
-        cp -R /app/nightwalker "${CONFIG_DIR}/nightwalker-hotio-old"
-        sed -i "s#/app/nightwalker#${CONFIG_DIR}/nightwalker-hotio-old#g" "${CONFIG_DIR}/config/qBittorrent.conf"
-    fi
-    if grep -q 'WebUI\\RootFolder=/app/vuetorrent' "${CONFIG_DIR}/config/qBittorrent.conf"; then
-        cp -R /app/vuetorrent "${CONFIG_DIR}/vuetorrent-hotio-old"
-        sed -i "s#/app/vuetorrent#${CONFIG_DIR}/vuetorrent-hotio-old#g" "${CONFIG_DIR}/config/qBittorrent.conf"
-    fi
-fi
