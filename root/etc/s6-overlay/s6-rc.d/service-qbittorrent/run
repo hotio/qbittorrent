@@ -3,4 +3,7 @@
 
 umask "${UMASK}"
 
-exec s6-setuidgid hotio "${APP_DIR}/qbittorrent-nox" --profile="${APP_DIR}" --webui-port="${WEBUI_PORTS%%/*}" --confirm-legal-notice
+lib="lib1"
+[[ ${LIBTORRENT} == "v2" ]] && lib="lib2"
+
+exec s6-setuidgid hotio "${APP_DIR}/qbittorrent-nox-${lib}" --profile="${APP_DIR}" --webui-port="${WEBUI_PORTS%%/*}" --confirm-legal-notice

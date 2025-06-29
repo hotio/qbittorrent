@@ -1,7 +1,9 @@
 {
-  "build_revision": "1",
+  "build_revision_lib1": "1",
+  "build_revision_lib2": "1",
   "description": "Releases",
-  "full_version": "release-5.1.1_v1.2.20",
+  "full_version_lib1": "release-5.1.1_v1.2.20",
+  "full_version_lib2": "release-5.1.1_v2.0.11",
   "latest": true,
   "test_amd64": true,
   "test_arm64": false,
