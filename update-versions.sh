@@ -1,8 +1,7 @@
 #!/bin/bash
-json=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json") || exit 1
-full_version=$(jq -re '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"' <<< "${json}" ) || exit 1
-build_revision=$(jq -re '.revision' <<< "${json}" ) || exit 1
+full_version=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json" | jq -re '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"') || exit 1
 version=$(sed -e "s/release-//g" -e "s/_.*//g" <<< "${full_version}")
+build_revision=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://github.com/userdocs/qbittorrent-nox-static/releases/download/${full_version}/dependency-version.json" | jq -re '.revision') || exit 1
 [[ -z ${version} ]] && exit 0
 [[ ${version} == null ]] && exit 0
 json=$(cat VERSION.json)
