@@ -1,5 +1,7 @@
 # shellcheck shell=bash
-until pidof qbittorrent-nox > /dev/null; do   
+lib="lib1"
+[[ ${LIBTORRENT} == "v2" ]] && lib="lib2"
+until pidof "qbittorrent-nox-${lib}" > /dev/null; do   
     sleep 1
 done
 webui_https="http"
