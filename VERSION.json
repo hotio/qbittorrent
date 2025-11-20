@@ -1,6 +1,6 @@
 {
-  "build_revision_lib1": "0",
-  "build_revision_lib2": "0",
+  "build_revision_lib1": "1",
+  "build_revision_lib2": "1",
   "description": "Releases",
   "full_version_lib1": "release-5.1.4_v1.2.20",
   "full_version_lib2": "release-5.1.4_v2.0.11",
