@@ -2,8 +2,8 @@
   "build_revision_lib1": "0",
   "build_revision_lib2": "0",
   "description": "Releases",
-  "full_version_lib1": "release-5.1.3_v1.2.20",
-  "full_version_lib2": "release-5.1.3_v2.0.11",
+  "full_version_lib1": "release-5.1.4_v1.2.20",
+  "full_version_lib2": "release-5.1.4_v2.0.11",
   "latest": true,
   "test_amd64": true,
   "test_arm64": false,
@@ -12,5 +12,5 @@
   "upstream_digest_arm64": "sha256:75e85a34a3eb3400bc50b24300a34dcc680d358c1c9113d6b0761d3fd628406d",
   "upstream_image": "ghcr.io/hotio/base",
   "upstream_tag": "alpinevpn",
-  "version": "5.1.3"
+  "version": "5.1.4"
 }
