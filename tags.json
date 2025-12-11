@@ -2,13 +2,13 @@
   "legacy": {
     "description": "Fixed to v4.3.9",
     "hide": false,
-    "last_updated": "2025-12-10T09:44:36.000Z",
-    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/20093916777",
+    "last_updated": "2025-12-11T00:55:22.000Z",
+    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/20118122652",
     "latest": false,
     "tags": [
       "legacy",
       "legacy-4.3.9",
-      "legacy-925a933"
+      "legacy-132e7a2"
     ]
   },
   "release": {
