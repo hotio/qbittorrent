@@ -8,8 +8,8 @@ If you need some assistance, please join our [discord](https://hotio.dev/discord
 
 # Source
 
-The source is hosted at [GitHub](https://github.com/hotio). If you can't find it in the `master` branch, it's probably located in another branch.
+The source is hosted at [GitHub](https://github.com/hotio). Usually in the branches `release`, `testing` or `nightly`.
 
 # Show your support
 
-You can show your support by giving us a star on Docker Hub or/and GitHub, it's also possible to make a [donation](https://hotio.dev/donate).
+You can show your support by giving us a star on GitHub, it's also possible to make a [donation](https://hotio.dev/donate).
