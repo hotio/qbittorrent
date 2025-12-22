@@ -8,8 +8,8 @@
   "test_amd64": true,
   "test_arm64": false,
   "test_url": "http://localhost:8080",
-  "upstream_digest_amd64": "sha256:7dacf96310b6a80a65c26041b95ac596a002f361eebf9b19956977b9859df765",
-  "upstream_digest_arm64": "sha256:dccb90f5e1d9a5c75bcf0d54b1e05dadd4319bd623f7d801d7e37cdbfb208474",
+  "upstream_digest_amd64": "sha256:56ad8ba27a4c2899bf0692523eafe33e18596ddd3cad69bbe16462041433cf62",
+  "upstream_digest_arm64": "sha256:abe2401c29693cf1b2198e509d8c362cc2f4b484fb2e6f65ed23288007d04eb9",
   "upstream_image": "ghcr.io/hotio/base",
   "upstream_tag": "alpinevpn",
   "version": "5.1.4"
