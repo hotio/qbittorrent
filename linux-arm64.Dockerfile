@@ -14,3 +14,4 @@ RUN curl -fsSL "https://github.com/userdocs/qbittorrent-nox-static-legacy/releas
     chmod 755 "${APP_DIR}/qbittorrent-nox"
 
 COPY root/ /
+RUN find /etc/s6-overlay/s6-rc.d -name "run*" -execdir chmod +x {} +
