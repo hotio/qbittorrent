@@ -1,6 +1,11 @@
 #!/command/with-contenv bash
 # shellcheck shell=bash
 
+# shellcheck source=/dev/null
+source /etc/s6-overlay/scripts/bash-functions
+
+set -e
+
 umask "${UMASK}"
 
 echo "
@@ -13,7 +18,7 @@ LIBTORRENT=${LIBTORRENT}
 "
 
 if [[ ! -f "${CONFIG_DIR}/config/qBittorrent.conf" ]]; then
-    echo "Installing default \"qBittorrent.conf\"..."
+    log_inf "Installing default [${CONFIG_DIR}/config/qBittorrent.conf] file."
     mkdir -p "${CONFIG_DIR}/config"
     cp "${APP_DIR}/qBittorrent.conf" "${CONFIG_DIR}/config/qBittorrent.conf"
     find "${CONFIG_DIR}/config" \( ! -user hotio -or ! -group hotio \) -exec chown hotio:hotio {} +
