@@ -7,10 +7,17 @@ if grep -q 'WebUI\\HTTPS\\Enabled=true' "${CONFIG_DIR}/config/qBittorrent.conf";
     webui_https="https"
 fi
 if grep -q 'WebUI\\LocalHostAuth=false' "${CONFIG_DIR}/config/qBittorrent.conf"; then
-    if ! curl -fsL --retry-all-errors --retry-delay 10 --retry 5 --retry-max-time 120 --insecure -X POST -d "json={\"web_ui_upnp\":false,\"upnp\":false,\"random_port\":false,\"listen_port\":${port}}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"; then
-        log_err "[QBITTORRENT] Unable to set forwarded port, something is wrong!"
+    old_port=$(curl -fsL --retry-all-errors --retry-delay 10 --retry 5 --retry-max-time 120 --insecure -X POST "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/preferences" | jq -r '.listen_port')
+    if [[ "${old_port}" != "${port}" ]]; then
+        if ! curl -fsL --retry-all-errors --retry-delay 10 --retry 5 --retry-max-time 120 --insecure -X POST -d "json={\"web_ui_upnp\":false,\"upnp\":false,\"random_port\":false,\"listen_port\":${port}}" "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/setPreferences"; then
+            log_err "[QBITTORRENT] Unable to update forwarded port, something is wrong!"
+        else
+            log_inf "[QBITTORRENT] Updated forwarded port to [${port}]."
+            log_inf "[QBITTORRENT] Shutting down to properly reload forwarded port..."
+            curl -fsL --retry-all-errors --retry-delay 10 --retry 5 --retry-max-time 120 --insecure -X POST "${webui_https}://localhost:${WEBUI_PORTS%%/*}/api/v2/app/shutdown"
+        fi
     else
-        log_inf "[QBITTORRENT] Updated forwarded port to [${port}]."
+        log_inf "[QBITTORRENT] Nothing to do, forwarded port hasn't changed."
     fi
 else
     log_wrn "[QBITTORRENT] Unable to set forwarded port, \"LocalHostAuth\" is enabled!"
