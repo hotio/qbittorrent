@@ -1,14 +1,18 @@
 {
   "legacy": {
+    "commit_message": "Upstream image update",
     "description": "Fixed to v4.3.9",
     "hide": false,
-    "last_updated": "2025-12-31T17:22:51.000Z",
-    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/20623612318",
+    "last_updated": "2026-01-04T09:26:29.000Z",
+    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/20690832867",
     "latest": false,
     "tags": [
       "legacy",
       "legacy-4.3.9",
-      "legacy-fa5011b"
+      "legacy-0c51c41",
+      "legacy-v4",
+      "legacy-v4.3",
+      "legacy-v4.3.9"
     ]
   },
   "release": {
