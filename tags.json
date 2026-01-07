@@ -18,15 +18,16 @@
   },
   "release": {
     "commit_message": "Upstream image update",
+    "commit_sha": "e995b68811407b49c3320a05893a95a6831a677b",
     "description": "Releases",
     "hide": false,
-    "last_updated": "2026-01-04T09:26:31.000Z",
-    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/20690833038",
+    "last_updated": "2026-01-07T03:57:42.000Z",
+    "last_updated_url": "https://github.com/hotio/qbittorrent/actions/runs/20770104103",
     "latest": true,
     "tags": [
       "release",
       "release-5.1.4",
-      "release-8db4658",
+      "release-e995b68",
       "release-v5",
       "release-v5.1",
       "release-v5.1.4"
