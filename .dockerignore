@@ -4,6 +4,6 @@
 build.sh
 LICENSE
 README.md
-update-digests.sh
+update-upstream.sh
 update-versions.sh
 VERSION.json
