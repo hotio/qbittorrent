@@ -1,9 +1,9 @@
 #!/bin/bash
-full_version=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json" | jq -re '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"') || exit 1
+set -exuo pipefail
+
+full_version=$(curl -fsSL "https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest/download/dependency-version.json" | jq -re '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"')
 version=$(sed -e "s/release-//g" -e "s/_.*//g" <<< "${full_version}")
-build_revision=$(curl -u "${GITHUB_ACTOR}:${GITHUB_TOKEN}" -fsSL "https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/download/${full_version}/dependency-version.json" | jq -re '.revision') || exit 1
-[[ -z ${version} ]] && exit 0
-[[ ${version} == null ]] && exit 0
+build_revision=$(curl -fsSL "https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/download/${full_version}/dependency-version.json" | jq -re '.revision')
 json=$(cat VERSION.json)
 jq --sort-keys \
     --arg version "${version//v/}" \
