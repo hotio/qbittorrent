@@ -6,7 +6,7 @@
   "test_url": "http://localhost:8080",
   "upstream_image": "ghcr.io/hotio/base",
   "upstream_tag": "alpinevpn",
-  "upstream_tag_sha": "alpinevpn-dd4e2a2",
+  "upstream_tag_sha": "alpinevpn-1e0d32b",
   "upstream_tag_sha__command": "json=$(cat meta.json) && upstream_image=$(jq -re '.upstream_image' <<< \"${json}\") && upstream_image_base=$(basename \"${upstream_image}\") && upstream_tag=$(jq -re '.upstream_tag' <<< \"${json}\") && tags_json=$(curl -fsSL ${GITHUB_TOKEN:+--header \"Authorization: Bearer ${GITHUB_TOKEN}\"} \"https://hotio.dev/containers/${upstream_image_base}-tags.json\") && commit_sha=$(jq -r --arg tag \"${upstream_tag}\" '.[$tag].commit_sha' <<< \"${tags_json}\") && upstream_tag_sha=${upstream_tag}-${commit_sha:0:7} && echo \"${upstream_tag_sha}\"",
   "version": "5.2.3",
   "version__command": "if ! test -f cache-page1.json; then curl -fsSL \"https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json\" > cache-page1.json; fi && cat cache-page1.json | jq -re '. | \"release-\\(.qbittorrent)_v\\(.libtorrent_1_2)\"' | sed -e \"s/release-//g\" -e \"s/_.*//g\"",
