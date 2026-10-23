@@ -1,6 +1,7 @@
 {
   "description": "Releases",
-  "latest": true,
+  "latest": false,
+  "hide": true,
   "test_amd64": true,
   "test_arm64": true,
   "test_url": "http://localhost:8080",
