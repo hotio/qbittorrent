@@ -12,9 +12,9 @@ RUN ln -s "${CONFIG_DIR}" "${APP_DIR}/qBittorrent"
 
 ARG VERSION_LIB1
 ARG VERSION_LIB2
-RUN curl -fsSL "https://github.com/userdocs/qbittorrent-nox-static/releases/download/${VERSION_LIB1%%/*}/x86_64-qbittorrent-nox" > "${APP_DIR}/qbittorrent-nox-lib1" && \
+RUN curl -fsSL "https://github.com/userdocs/qbittorrent-nox-static-test/releases/download/${VERSION_LIB1%%/*}/x86_64-qbittorrent-nox" > "${APP_DIR}/qbittorrent-nox-lib1" && \
     chmod 755 "${APP_DIR}/qbittorrent-nox-lib1" && \
-    curl -fsSL "https://github.com/userdocs/qbittorrent-nox-static/releases/download/${VERSION_LIB2%%/*}/x86_64-qbittorrent-nox" > "${APP_DIR}/qbittorrent-nox-lib2" && \
+    curl -fsSL "https://github.com/userdocs/qbittorrent-nox-static-test/releases/download/${VERSION_LIB2%%/*}/x86_64-qbittorrent-nox" > "${APP_DIR}/qbittorrent-nox-lib2" && \
     chmod 755 "${APP_DIR}/qbittorrent-nox-lib2"
 
 COPY root/ /
